@@ -19,7 +19,7 @@ export default function ResponseBrowser() {
     order: 'desc',
   });
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value);
     clearTimeout(debounceRef.current);
