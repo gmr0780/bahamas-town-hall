@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 import healthRouter from './routes/health';
+import citizensRouter from './routes/citizens';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,6 +18,7 @@ app.use(cookieParser());
 
 // API routes
 app.use(healthRouter);
+app.use(citizensRouter);
 
 // Production: serve client build
 if (process.env.NODE_ENV === 'production') {
