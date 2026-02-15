@@ -19,6 +19,7 @@ import questionsRouter from './routes/questions';
 import adminQuestionsRouter from './routes/admin-questions';
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
