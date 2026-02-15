@@ -24,7 +24,7 @@ export default function Confirmation({ data, questions, onBack }: Props) {
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const turnstileRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string>();
+  const widgetIdRef = useRef<string>(undefined);
 
   const renderTurnstile = useCallback(() => {
     if (turnstileRef.current && window.turnstile && !widgetIdRef.current) {
