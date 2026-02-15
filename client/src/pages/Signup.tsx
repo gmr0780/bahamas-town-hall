@@ -16,36 +16,36 @@ export default function Signup({ data, updateData, onNext }: Props) {
 
   return (
     <SurveyLayout step={1} title="Tell Us About Yourself" totalSteps={3}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 lg:space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Full Name *</label>
           <input
             type="text"
             required
             value={data.name}
             onChange={(e) => updateData({ name: e.target.value })}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="Enter your full name"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Email Address *</label>
           <input
             type="email"
             required
             value={data.email}
             onChange={(e) => updateData({ email: e.target.value })}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="your@email.com"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Phone (optional)</label>
           <input
             type="tel"
             value={data.phone}
             onChange={(e) => updateData({ phone: e.target.value })}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="(242) 555-0000"
           />
         </div>
@@ -82,14 +82,14 @@ export default function Signup({ data, updateData, onNext }: Props) {
 
         {!data.lives_in_bahamas && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
               Country of Residence *
             </label>
             <select
               required
               value={data.country}
               onChange={(e) => updateData({ country: e.target.value })}
-              className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             >
               <option value="">Select your country</option>
               {COUNTRIES.map((c) => (
@@ -100,7 +100,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
             {data.lives_in_bahamas
               ? 'Which island do you live on? *'
               : 'Which island are you from? *'}
@@ -109,7 +109,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.island}
             onChange={(e) => updateData({ island: e.target.value })}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">
               {data.lives_in_bahamas ? 'Select your island' : 'Select your home island'}
@@ -121,12 +121,12 @@ export default function Signup({ data, updateData, onNext }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Age Group *</label>
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Age Group *</label>
           <select
             required
             value={data.age_group}
             onChange={(e) => updateData({ age_group: e.target.value })}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select your age group</option>
             {AGE_GROUPS.map((ag) => (
@@ -135,12 +135,12 @@ export default function Signup({ data, updateData, onNext }: Props) {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sector *</label>
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Sector *</label>
           <select
             required
             value={data.sector}
             onChange={(e) => updateData({ sector: e.target.value })}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select your sector</option>
             {SECTORS.map((s) => (

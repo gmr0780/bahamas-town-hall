@@ -11,7 +11,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
     case 'text':
       return (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
             {question.label}{question.required && ' *'}
           </label>
           {question.description && (
@@ -22,7 +22,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             required={question.required}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           />
         </div>
       );
@@ -30,7 +30,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
     case 'textarea':
       return (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
             {question.label}{question.required && ' *'}
           </label>
           {question.description && (
@@ -41,7 +41,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             rows={3}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder={question.description || ''}
           />
         </div>
@@ -51,7 +51,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
       const options = question.options as string[];
       return (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">
             {question.label}{question.required && ' *'}
           </label>
           {question.description && (
@@ -61,7 +61,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             required={question.required}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select an option</option>
             {options.map((opt) => (
@@ -86,7 +86,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
 
       return (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
             {question.label}{question.required && ' *'}
           </label>
           {question.description && (
@@ -123,7 +123,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
 
       return (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
             {question.label}{question.required && ' *'}
           </label>
           {question.description && (
@@ -139,7 +139,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
                     key={level}
                     type="button"
                     onClick={() => onChange(String(level))}
-                    className={`w-11 h-11 sm:w-10 sm:h-10 rounded-full font-semibold text-base sm:text-sm transition-colors ${
+                    className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full font-semibold text-base transition-colors ${
                       value === String(level)
                         ? 'bg-bahamas-aqua text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
