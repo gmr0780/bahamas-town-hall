@@ -49,20 +49,74 @@ export default function Signup({ data, updateData, onNext }: Props) {
             placeholder="(242) 555-0000"
           />
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Island *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Do you currently live in The Bahamas? *
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => updateData({ lives_in_bahamas: true, country: '' })}
+              className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                data.lives_in_bahamas
+                  ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              Yes, I live in The Bahamas
+            </button>
+            <button
+              type="button"
+              onClick={() => updateData({ lives_in_bahamas: false })}
+              className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                !data.lives_in_bahamas
+                  ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              No, I live abroad
+            </button>
+          </div>
+        </div>
+
+        {!data.lives_in_bahamas && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Country of Residence *
+            </label>
+            <input
+              type="text"
+              required
+              value={data.country}
+              onChange={(e) => updateData({ country: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              placeholder="e.g. United States, Canada, United Kingdom"
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {data.lives_in_bahamas
+              ? 'Which island do you live on? *'
+              : 'Which island are you from? *'}
+          </label>
           <select
             required
             value={data.island}
             onChange={(e) => updateData({ island: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
           >
-            <option value="">Select your island</option>
+            <option value="">
+              {data.lives_in_bahamas ? 'Select your island' : 'Select your home island'}
+            </option>
             {ISLANDS.map((island) => (
               <option key={island} value={island}>{island}</option>
             ))}
           </select>
         </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Age Group *</label>
           <select

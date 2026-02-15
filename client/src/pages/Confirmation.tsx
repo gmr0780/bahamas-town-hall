@@ -61,7 +61,11 @@ export default function Confirmation({ data, onBack }: Props) {
             <p><strong>Name:</strong> {data.name}</p>
             <p><strong>Email:</strong> {data.email}</p>
             {data.phone && <p><strong>Phone:</strong> {data.phone}</p>}
-            <p><strong>Island:</strong> {data.island}</p>
+            <p><strong>Resides in Bahamas:</strong> {data.lives_in_bahamas ? 'Yes' : 'No'}</p>
+            {!data.lives_in_bahamas && data.country && (
+              <p><strong>Country:</strong> {data.country}</p>
+            )}
+            <p><strong>{data.lives_in_bahamas ? 'Island' : 'Home Island'}:</strong> {data.island}</p>
             <p><strong>Age Group:</strong> {data.age_group}</p>
             <p><strong>Sector:</strong> {data.sector}</p>
           </div>

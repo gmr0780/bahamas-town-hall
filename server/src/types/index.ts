@@ -3,7 +3,9 @@ export interface Citizen {
   name: string;
   email: string;
   phone: string | null;
+  lives_in_bahamas: boolean;
   island: string;
+  country: string | null;
   age_group: string;
   sector: string;
   created_at: string;
@@ -40,7 +42,9 @@ export interface CitizenSubmission {
   name: string;
   email: string;
   phone?: string;
+  lives_in_bahamas: boolean;
   island: string;
+  country?: string;
   age_group: string;
   sector: string;
   tech_comfort_level: number;

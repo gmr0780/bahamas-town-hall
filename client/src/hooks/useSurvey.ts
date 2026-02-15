@@ -5,7 +5,9 @@ export interface SurveyData {
   name: string;
   email: string;
   phone: string;
+  lives_in_bahamas: boolean;
   island: string;
+  country: string;
   age_group: string;
   sector: string;
   // Step 2: Self-assessment
@@ -28,7 +30,9 @@ const initialData: SurveyData = {
   name: '',
   email: '',
   phone: '',
+  lives_in_bahamas: true,
   island: '',
+  country: '',
   age_group: '',
   sector: '',
   tech_comfort_level: 3,

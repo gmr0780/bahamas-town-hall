@@ -26,7 +26,7 @@ async function getExportData(query: Request['query']) {
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   const result = await pool.query(
-    `SELECT c.name, c.email, c.phone, c.island, c.age_group, c.sector, c.created_at,
+    `SELECT c.name, c.email, c.phone, c.lives_in_bahamas, c.island, c.country, c.age_group, c.sector, c.created_at,
             sr.tech_comfort_level, sr.primary_barrier, sr.interested_in_careers,
             sr.desired_skill, sr.biggest_concern, sr.best_opportunity,
             sr.gov_tech_suggestion, sr.preferred_gov_service,
@@ -50,7 +50,7 @@ router.get('/api/admin/export/csv', adminAuth, async (req: Request, res: Respons
     const csv = stringify(data, {
       header: true,
       columns: [
-        'name', 'email', 'phone', 'island', 'age_group', 'sector', 'created_at',
+        'name', 'email', 'phone', 'lives_in_bahamas', 'island', 'country', 'age_group', 'sector', 'created_at',
         'tech_comfort_level', 'primary_barrier', 'interested_in_careers',
         'desired_skill', 'biggest_concern', 'best_opportunity',
         'gov_tech_suggestion', 'preferred_gov_service', 'topic_votes', 'interest_areas',

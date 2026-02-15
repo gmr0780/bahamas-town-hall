@@ -32,7 +32,9 @@ export default function ResponseDetail() {
         <Section title="Personal Information">
           <Field label="Email" value={citizen.email} />
           <Field label="Phone" value={citizen.phone} />
-          <Field label="Island" value={citizen.island} />
+          <Field label="Lives in Bahamas" value={citizen.lives_in_bahamas ? 'Yes' : 'No'} />
+          {!citizen.lives_in_bahamas && <Field label="Country" value={citizen.country} />}
+          <Field label={citizen.lives_in_bahamas ? 'Island' : 'Home Island'} value={citizen.island} />
           <Field label="Age Group" value={citizen.age_group} />
           <Field label="Sector" value={citizen.sector} />
           <Field label="Submitted" value={new Date(citizen.created_at).toLocaleString()} />
