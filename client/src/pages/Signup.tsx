@@ -1,4 +1,4 @@
-import { SurveyData } from '../hooks/useSurvey';
+import type { SurveyData } from '../hooks/useSurvey';
 import SurveyLayout from '../components/SurveyLayout';
 import { ISLANDS, AGE_GROUPS, SECTORS } from '../lib/constants';
 

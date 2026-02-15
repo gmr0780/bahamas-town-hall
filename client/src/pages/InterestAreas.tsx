@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SurveyData } from '../hooks/useSurvey';
+import type { SurveyData } from '../hooks/useSurvey';
 import SurveyLayout from '../components/SurveyLayout';
 import { INTEREST_AREAS } from '../lib/constants';
 
