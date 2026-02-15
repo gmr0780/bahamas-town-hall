@@ -12,6 +12,9 @@ import adminAuthRouter from './routes/admin-auth';
 import adminStatsRouter from './routes/admin-stats';
 import adminResponsesRouter from './routes/admin-responses';
 import adminDemographicsRouter from './routes/admin-demographics';
+import adminPrioritiesRouter from './routes/admin-priorities';
+import adminInsightsRouter from './routes/admin-insights';
+import adminExportRouter from './routes/admin-export';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +30,9 @@ app.use(adminAuthRouter);
 app.use(adminStatsRouter);
 app.use(adminResponsesRouter);
 app.use(adminDemographicsRouter);
+app.use(adminPrioritiesRouter);
+app.use(adminInsightsRouter);
+app.use(adminExportRouter);
 
 // Production: serve client build
 if (process.env.NODE_ENV === 'production') {
