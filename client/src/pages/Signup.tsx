@@ -1,6 +1,6 @@
 import type { SurveyData } from '../lib/types';
 import SurveyLayout from '../components/SurveyLayout';
-import { ISLANDS, AGE_GROUPS, SECTORS } from '../lib/registration-options';
+import { ISLANDS, AGE_GROUPS, SECTORS, COUNTRIES } from '../lib/registration-options';
 
 interface Props {
   data: SurveyData;
@@ -85,14 +85,17 @@ export default function Signup({ data, updateData, onNext }: Props) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Country of Residence *
             </label>
-            <input
-              type="text"
+            <select
               required
               value={data.country}
               onChange={(e) => updateData({ country: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
-              placeholder="e.g. United States, Canada, United Kingdom"
-            />
+            >
+              <option value="">Select your country</option>
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
         )}
 
