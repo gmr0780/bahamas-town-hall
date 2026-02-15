@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 
@@ -12,11 +13,31 @@ const navItems = [
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const [authed, setAuthed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api.checkAuth()
+      .then(() => setAuthed(true))
+      .catch(() => {
+        setAuthed(false);
+        navigate('/admin/login', { replace: true });
+      });
+  }, [navigate]);
 
   const handleLogout = async () => {
     await api.logout();
     navigate('/admin/login');
   };
+
+  if (authed === null) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Checking authentication...</p>
+      </div>
+    );
+  }
+
+  if (!authed) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
