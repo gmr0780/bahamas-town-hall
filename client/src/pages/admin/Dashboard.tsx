@@ -7,7 +7,6 @@ interface Stats {
   by_island: { island: string; count: string }[];
   by_age_group: { age_group: string; count: string }[];
   by_sector: { sector: string; count: string }[];
-  avg_tech_comfort: number;
 }
 
 export default function Dashboard() {
@@ -25,10 +24,9 @@ export default function Dashboard() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <StatCard label="Total Responses" value={stats.total_responses} />
         <StatCard label="Today" value={stats.today_responses} />
-        <StatCard label="Avg Tech Comfort" value={`${stats.avg_tech_comfort}/5`} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -62,10 +60,8 @@ function BreakdownCard({ title, data }: { title: string; data: { label: string; 
               <span className="text-gray-900 font-medium">{item.count}</span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-1.5">
-              <div
-                className="bg-cyan-500 h-1.5 rounded-full"
-                style={{ width: `${(item.count / max) * 100}%` }}
-              />
+              <div className="bg-bahamas-aqua h-1.5 rounded-full"
+                style={{ width: `${(item.count / max) * 100}%` }} />
             </div>
           </div>
         ))}

@@ -34,7 +34,7 @@ export default function AIInsights() {
           <button
             onClick={generate}
             disabled={loading}
-            className="bg-cyan-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:bg-gray-300"
+            className="bg-bahamas-aqua text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:bg-gray-300"
           >
             {loading ? 'Analyzing...' : 'Generate Insights'}
           </button>
@@ -48,7 +48,7 @@ export default function AIInsights() {
 
         {loading && (
           <div className="flex items-center gap-3 text-gray-500">
-            <div className="animate-spin w-5 h-5 border-2 border-cyan-600 border-t-transparent rounded-full" />
+            <div className="animate-spin w-5 h-5 border-2 border-bahamas-aqua border-t-transparent rounded-full" />
             Analyzing responses with Claude AI...
           </div>
         )}
@@ -67,7 +67,7 @@ export default function AIInsights() {
               }
               if (line.startsWith('> ')) {
                 return (
-                  <blockquote key={i} className="border-l-4 border-cyan-300 pl-4 italic text-gray-600 my-2">
+                  <blockquote key={i} className="border-l-4 border-bahamas-aqua pl-4 italic text-gray-600 my-2">
                     {line.replace('> ', '')}
                   </blockquote>
                 );

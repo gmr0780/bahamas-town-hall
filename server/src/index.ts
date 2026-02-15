@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import dotenv from 'dotenv';
 
@@ -12,25 +13,50 @@ import adminAuthRouter from './routes/admin-auth';
 import adminStatsRouter from './routes/admin-stats';
 import adminResponsesRouter from './routes/admin-responses';
 import adminDemographicsRouter from './routes/admin-demographics';
-import adminPrioritiesRouter from './routes/admin-priorities';
 import adminInsightsRouter from './routes/admin-insights';
 import adminExportRouter from './routes/admin-export';
+import questionsRouter from './routes/questions';
+import adminQuestionsRouter from './routes/admin-questions';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: true, credentials: true }));
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? corsOrigin : true,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
+// Rate limiters
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many login attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const submissionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { errors: ['Too many submissions, please try again later'] },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // API routes
 app.use(healthRouter);
+app.use(questionsRouter);
+app.use('/api/citizens', submissionLimiter);
 app.use(citizensRouter);
+app.use('/api/admin/login', loginLimiter);
 app.use(adminAuthRouter);
+app.use(adminQuestionsRouter);
 app.use(adminStatsRouter);
 app.use(adminResponsesRouter);
 app.use(adminDemographicsRouter);
-app.use(adminPrioritiesRouter);
 app.use(adminInsightsRouter);
 app.use(adminExportRouter);
 

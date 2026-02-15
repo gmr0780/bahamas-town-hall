@@ -1,3 +1,5 @@
+import type { Question } from './types';
+
 const BASE_URL = '';
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
@@ -15,7 +17,6 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     throw new Error(body.error || body.errors?.[0] || `Request failed: ${res.status}`);
   }
 
-  // Handle download responses
   const contentType = res.headers.get('content-type');
   if (contentType?.includes('text/csv')) {
     return (await res.text()) as unknown as T;
@@ -25,7 +26,8 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // Citizen
+  // Public
+  getQuestions: () => request<Question[]>('/api/questions'),
   submitSurvey: (data: any) =>
     request<{ id: number }>('/api/citizens', {
       method: 'POST',
@@ -51,9 +53,28 @@ export const api = {
   },
   getResponse: (id: number) => request<any>(`/api/admin/responses/${id}`),
   getDemographics: () => request<any>('/api/admin/demographics'),
-  getPriorities: () => request<any>('/api/admin/priorities'),
   generateInsights: () =>
     request<{ insights: string }>('/api/admin/insights', { method: 'POST' }),
+
+  // Admin questions
+  getAdminQuestions: () => request<any[]>('/api/admin/questions'),
+  createQuestion: (data: any) =>
+    request<any>('/api/admin/questions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updateQuestion: (id: number, data: any) =>
+    request<any>(`/api/admin/questions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  reorderQuestions: (order: { id: number; sort_order: number }[]) =>
+    request<any>('/api/admin/questions/reorder', {
+      method: 'PATCH',
+      body: JSON.stringify({ order }),
+    }),
+  deleteQuestion: (id: number) =>
+    request<any>(`/api/admin/questions/${id}`, { method: 'DELETE' }),
 
   // Export
   exportCsv: (params: Record<string, string>) => {

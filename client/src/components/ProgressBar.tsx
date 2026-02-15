@@ -1,6 +1,12 @@
-const steps = ['Your Info', 'Assessment', 'Priorities', 'Interests', 'Confirm'];
+interface Props {
+  currentStep: number;
+  totalSteps?: number;
+  labels?: string[];
+}
 
-export default function ProgressBar({ currentStep }: { currentStep: number }) {
+export default function ProgressBar({ currentStep, totalSteps = 3, labels }: Props) {
+  const steps = labels || ['Your Info', 'Questions', 'Confirm'];
+
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-3">
@@ -13,9 +19,9 @@ export default function ProgressBar({ currentStep }: { currentStep: number }) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                   isCurrent
-                    ? 'bg-cyan-600 text-white'
+                    ? 'bg-bahamas-aqua text-white'
                     : isActive
-                    ? 'bg-cyan-100 text-cyan-700'
+                    ? 'bg-bahamas-aqua-light text-bahamas-aqua'
                     : 'bg-gray-100 text-gray-400'
                 }`}
               >
@@ -23,7 +29,7 @@ export default function ProgressBar({ currentStep }: { currentStep: number }) {
               </div>
               <span
                 className={`text-xs font-medium ${
-                  isActive ? 'text-cyan-700' : 'text-gray-400'
+                  isActive ? 'text-bahamas-aqua' : 'text-gray-400'
                 }`}
               >
                 {label}
@@ -34,8 +40,8 @@ export default function ProgressBar({ currentStep }: { currentStep: number }) {
       </div>
       <div className="w-full bg-gray-200 rounded-full h-1.5">
         <div
-          className="bg-cyan-600 h-1.5 rounded-full transition-all duration-300"
-          style={{ width: `${(currentStep / steps.length) * 100}%` }}
+          className="bg-bahamas-aqua h-1.5 rounded-full transition-all duration-300"
+          style={{ width: `${(currentStep / (totalSteps || steps.length)) * 100}%` }}
         />
       </div>
     </div>

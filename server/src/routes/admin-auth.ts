@@ -1,17 +1,7 @@
 import { Router, Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
 import { generateToken, adminAuth } from '../middleware/admin-auth';
 
 const router = Router();
-
-// Hash the admin password on startup for comparison
-let hashedPassword: string | null = null;
-async function getHashedPassword(): Promise<string> {
-  if (!hashedPassword) {
-    hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin', 10);
-  }
-  return hashedPassword;
-}
 
 router.post('/api/admin/login', async (req: Request, res: Response) => {
   const { password } = req.body;

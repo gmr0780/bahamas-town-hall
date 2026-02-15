@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.ADMIN_PASSWORD || 'default-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
 export function generateToken(): string {
   return jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });

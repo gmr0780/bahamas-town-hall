@@ -44,9 +44,8 @@ router.get('/api/admin/responses', adminAuth, async (req: Request, res: Response
 
     const countQuery = `SELECT COUNT(*) as count FROM citizens c ${where}`;
     const dataQuery = `
-      SELECT c.*, sr.tech_comfort_level, sr.primary_barrier, sr.interested_in_careers
+      SELECT c.*
       FROM citizens c
-      LEFT JOIN survey_responses sr ON sr.citizen_id = c.id
       ${where}
       ORDER BY ${sortCol} ${order}
       LIMIT $${paramIdx++} OFFSET $${paramIdx++}
@@ -74,11 +73,16 @@ router.get('/api/admin/responses/:id', adminAuth, async (req: Request, res: Resp
   try {
     const { id } = req.params;
 
-    const [citizen, survey, topics, interests] = await Promise.all([
+    const [citizen, answers] = await Promise.all([
       pool.query('SELECT * FROM citizens WHERE id = $1', [id]),
-      pool.query('SELECT * FROM survey_responses WHERE citizen_id = $1', [id]),
-      pool.query('SELECT * FROM topic_votes WHERE citizen_id = $1 ORDER BY rank', [id]),
-      pool.query('SELECT * FROM interest_areas WHERE citizen_id = $1', [id]),
+      pool.query(
+        `SELECT r.value, q.id as question_id, q.type, q.label, q.options
+         FROM responses r
+         JOIN questions q ON q.id = r.question_id
+         WHERE r.citizen_id = $1
+         ORDER BY q.sort_order ASC`,
+        [id]
+      ),
     ]);
 
     if (citizen.rows.length === 0) {
@@ -87,9 +91,7 @@ router.get('/api/admin/responses/:id', adminAuth, async (req: Request, res: Resp
 
     res.json({
       citizen: citizen.rows[0],
-      survey: survey.rows[0] || null,
-      topic_votes: topics.rows,
-      interest_areas: interests.rows,
+      answers: answers.rows,
     });
   } catch (err) {
     console.error('Response detail error:', err);

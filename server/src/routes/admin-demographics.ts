@@ -6,55 +6,72 @@ const router = Router();
 
 router.get('/api/admin/demographics', adminAuth, async (_req: Request, res: Response) => {
   try {
-    const [
-      byIsland,
-      byAgeGroup,
-      bySector,
-      byBarrier,
-      comfortByIsland,
-      comfortByAge,
-      careerInterest,
-      byDesiredSkill,
-      interestAreas,
-    ] = await Promise.all([
+    // Citizen demographics (static fields)
+    const [byIsland, byAgeGroup, bySector] = await Promise.all([
       pool.query('SELECT island, COUNT(*) as count FROM citizens GROUP BY island ORDER BY count DESC'),
       pool.query('SELECT age_group, COUNT(*) as count FROM citizens GROUP BY age_group ORDER BY count DESC'),
       pool.query('SELECT sector, COUNT(*) as count FROM citizens GROUP BY sector ORDER BY count DESC'),
-      pool.query(
-        'SELECT primary_barrier, COUNT(*) as count FROM survey_responses WHERE primary_barrier IS NOT NULL GROUP BY primary_barrier ORDER BY count DESC'
-      ),
-      pool.query(
-        `SELECT c.island, ROUND(AVG(sr.tech_comfort_level)::numeric, 2) as avg_comfort
-         FROM citizens c JOIN survey_responses sr ON sr.citizen_id = c.id
-         GROUP BY c.island ORDER BY avg_comfort DESC`
-      ),
-      pool.query(
-        `SELECT c.age_group, ROUND(AVG(sr.tech_comfort_level)::numeric, 2) as avg_comfort
-         FROM citizens c JOIN survey_responses sr ON sr.citizen_id = c.id
-         GROUP BY c.age_group ORDER BY avg_comfort DESC`
-      ),
-      pool.query(
-        `SELECT interested_in_careers, COUNT(*) as count
-         FROM survey_responses GROUP BY interested_in_careers`
-      ),
-      pool.query(
-        'SELECT desired_skill, COUNT(*) as count FROM survey_responses WHERE desired_skill IS NOT NULL GROUP BY desired_skill ORDER BY count DESC'
-      ),
-      pool.query(
-        'SELECT area, COUNT(*) as count FROM interest_areas GROUP BY area ORDER BY count DESC'
-      ),
     ]);
+
+    // Dynamic question aggregations
+    const questions = await pool.query(
+      'SELECT id, type, label, options FROM questions ORDER BY sort_order ASC'
+    );
+
+    const questionStats = [];
+    for (const q of questions.rows) {
+      let stats: any = { id: q.id, type: q.type, label: q.label };
+
+      if (q.type === 'scale') {
+        const result = await pool.query(
+          `SELECT value, COUNT(*) as count FROM responses WHERE question_id = $1 GROUP BY value ORDER BY value`,
+          [q.id]
+        );
+        const avg = await pool.query(
+          `SELECT ROUND(AVG(value::numeric), 2) as avg FROM responses WHERE question_id = $1`,
+          [q.id]
+        );
+        stats.distribution = result.rows;
+        stats.average = avg.rows[0]?.avg ? parseFloat(avg.rows[0].avg) : 0;
+      } else if (q.type === 'dropdown') {
+        const result = await pool.query(
+          `SELECT value, COUNT(*) as count FROM responses WHERE question_id = $1 GROUP BY value ORDER BY count DESC`,
+          [q.id]
+        );
+        stats.distribution = result.rows;
+      } else if (q.type === 'checkbox') {
+        // Checkbox values are stored as JSON arrays -- unnest and count
+        const result = await pool.query(
+          `SELECT item, COUNT(*) as count
+           FROM responses, jsonb_array_elements_text(value::jsonb) AS item
+           WHERE question_id = $1
+           GROUP BY item ORDER BY count DESC`,
+          [q.id]
+        );
+        stats.distribution = result.rows;
+      } else if (q.type === 'text' || q.type === 'textarea') {
+        const count = await pool.query(
+          'SELECT COUNT(*) as count FROM responses WHERE question_id = $1',
+          [q.id]
+        );
+        const recent = await pool.query(
+          `SELECT r.value, c.island, c.age_group
+           FROM responses r JOIN citizens c ON c.id = r.citizen_id
+           WHERE r.question_id = $1 ORDER BY r.created_at DESC LIMIT 10`,
+          [q.id]
+        );
+        stats.total_responses = parseInt(count.rows[0].count);
+        stats.recent = recent.rows;
+      }
+
+      questionStats.push(stats);
+    }
 
     res.json({
       by_island: byIsland.rows,
       by_age_group: byAgeGroup.rows,
       by_sector: bySector.rows,
-      by_barrier: byBarrier.rows,
-      comfort_by_island: comfortByIsland.rows,
-      comfort_by_age: comfortByAge.rows,
-      career_interest: careerInterest.rows,
-      by_desired_skill: byDesiredSkill.rows,
-      interest_areas: interestAreas.rows,
+      questions: questionStats,
     });
   } catch (err) {
     console.error('Demographics error:', err);

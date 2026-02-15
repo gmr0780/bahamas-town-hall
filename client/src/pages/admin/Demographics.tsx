@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import {
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts';
 
-const COLORS = ['#0891b2', '#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc', '#0e7490', '#155e75', '#164e63'];
+const COLORS = ['#00778B', '#FFC72C', '#0891b2', '#06b6d4', '#22d3ee', '#67e8f9', '#0e7490', '#155e75'];
 
 export default function Demographics() {
   const [data, setData] = useState<any>(null);
@@ -19,16 +19,17 @@ export default function Demographics() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Demographics</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Demographics & Survey Results</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Citizen demographics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <ChartCard title="By Island">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
                 data={data.by_island.map((r: any) => ({ name: r.island, value: parseInt(r.count) }))}
                 cx="50%" cy="50%" outerRadius={100}
-                dataKey="value" label={({ name, value }) => `${name}: ${value}`}
+                dataKey="value" label={({ name, value }: any) => `${name}: ${value}`}
               >
                 {data.by_island.map((_: any, i: number) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
@@ -45,88 +46,80 @@ export default function Demographics() {
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#0891b2" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="By Sector">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.by_sector.map((r: any) => ({ name: r.sector, count: parseInt(r.count) }))} layout="vertical">
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#06b6d4" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="Primary Barriers">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.by_barrier.map((r: any) => ({ name: r.primary_barrier, count: parseInt(r.count) }))} layout="vertical">
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#22d3ee" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="Tech Comfort by Island">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.comfort_by_island.map((r: any) => ({ name: r.island, comfort: parseFloat(r.avg_comfort) }))}>
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
-              <YAxis domain={[0, 5]} />
-              <Tooltip />
-              <Bar dataKey="comfort" fill="#0e7490" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="Interest Areas">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.interest_areas.map((r: any) => ({ name: r.area, count: parseInt(r.count) }))} layout="vertical">
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#67e8f9" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="Career Interest">
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={data.career_interest.map((r: any) => ({
-                  name: r.interested_in_careers ? 'Interested' : 'Not Interested',
-                  value: parseInt(r.count),
-                }))}
-                cx="50%" cy="50%" outerRadius={80}
-                dataKey="value" label
-              >
-                <Cell fill="#0891b2" />
-                <Cell fill="#d1d5db" />
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        <ChartCard title="Desired Skills">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.by_desired_skill.map((r: any) => ({ name: r.desired_skill, count: parseInt(r.count) }))} layout="vertical">
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#155e75" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" fill="#00778B" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
+
+      {/* Dynamic question charts */}
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Survey Results by Question</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {data.questions.map((q: any) => (
+          <QuestionChart key={q.id} question={q} />
+        ))}
+      </div>
     </div>
   );
+}
+
+function QuestionChart({ question }: { question: any }) {
+  const { type, label, distribution, average, total_responses, recent } = question;
+
+  if (type === 'scale' && distribution) {
+    return (
+      <ChartCard title={label}>
+        <p className="text-sm text-gray-500 mb-3">Average: <strong>{average}</strong></p>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={distribution.map((d: any) => ({ rating: d.value, count: parseInt(d.count) }))}>
+            <XAxis dataKey="rating" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#00778B" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    );
+  }
+
+  if ((type === 'dropdown' || type === 'checkbox') && distribution) {
+    return (
+      <ChartCard title={label}>
+        <ResponsiveContainer width="100%" height={Math.max(200, distribution.length * 35)}>
+          <BarChart
+            data={distribution.map((d: any) => ({
+              name: d.value || d.item,
+              count: parseInt(d.count),
+            }))}
+            layout="vertical"
+          >
+            <XAxis type="number" />
+            <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
+            <Tooltip />
+            <Bar dataKey="count" fill="#FFC72C" radius={[0, 4, 4, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    );
+  }
+
+  if ((type === 'text' || type === 'textarea') && recent) {
+    return (
+      <ChartCard title={label}>
+        <p className="text-sm text-gray-500 mb-3">{total_responses} total responses</p>
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {recent.map((r: any, i: number) => (
+            <div key={i} className="bg-gray-50 rounded-lg p-3 text-sm">
+              <p className="text-gray-700">{r.value}</p>
+              <p className="text-xs text-gray-400 mt-1">{r.island} &middot; {r.age_group}</p>
+            </div>
+          ))}
+        </div>
+      </ChartCard>
+    );
+  }
+
+  return null;
 }
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {

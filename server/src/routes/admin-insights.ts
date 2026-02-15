@@ -14,28 +14,45 @@ router.post('/api/admin/insights', adminAuth, async (_req: Request, res: Respons
   }
 
   try {
-    const responses = await pool.query(
-      `SELECT c.island, c.age_group, c.sector,
-              sr.biggest_concern, sr.best_opportunity, sr.gov_tech_suggestion,
-              sr.tech_comfort_level, sr.primary_barrier
-       FROM citizens c
-       JOIN survey_responses sr ON sr.citizen_id = c.id
-       WHERE sr.biggest_concern IS NOT NULL
-          OR sr.best_opportunity IS NOT NULL
-          OR sr.gov_tech_suggestion IS NOT NULL`
+    // Get all questions for context
+    const questions = await pool.query(
+      'SELECT id, type, label FROM questions ORDER BY sort_order ASC'
     );
 
-    if (responses.rows.length === 0) {
-      return res.json({ insights: 'No open-ended responses available for analysis yet.' });
+    // Get recent citizen responses with their answers
+    const citizenData = await pool.query(
+      `SELECT c.id, c.island, c.age_group, c.sector
+       FROM citizens c
+       ORDER BY c.created_at DESC
+       LIMIT 200`
+    );
+
+    if (citizenData.rows.length === 0) {
+      return res.json({ insights: 'No responses available for analysis yet.' });
     }
 
-    const dataForAnalysis = responses.rows.map((r, i) => (
-      `Response ${i + 1} (${r.island}, ${r.age_group}, ${r.sector}, comfort: ${r.tech_comfort_level}/5):
-  - Biggest concern: ${r.biggest_concern || 'N/A'}
-  - Best opportunity: ${r.best_opportunity || 'N/A'}
-  - Gov tech suggestion: ${r.gov_tech_suggestion || 'N/A'}
-  - Primary barrier: ${r.primary_barrier || 'N/A'}`
-    )).join('\n\n');
+    const citizenIds = citizenData.rows.map((c: any) => c.id);
+    const answersResult = await pool.query(
+      `SELECT r.citizen_id, q.label, q.type, r.value
+       FROM responses r
+       JOIN questions q ON q.id = r.question_id
+       WHERE r.citizen_id = ANY($1)
+       ORDER BY r.citizen_id, q.sort_order`,
+      [citizenIds]
+    );
+
+    // Group answers by citizen
+    const answersByCitizen = new Map<number, any[]>();
+    for (const row of answersResult.rows) {
+      if (!answersByCitizen.has(row.citizen_id)) answersByCitizen.set(row.citizen_id, []);
+      answersByCitizen.get(row.citizen_id)!.push(row);
+    }
+
+    const dataForAnalysis = citizenData.rows.map((c: any, i: number) => {
+      const answers = answersByCitizen.get(c.id) || [];
+      const answerLines = answers.map((a: any) => `  - ${a.label}: ${a.value}`).join('\n');
+      return `Response ${i + 1} (${c.island}, ${c.age_group}, ${c.sector}):\n${answerLines}`;
+    }).join('\n\n');
 
     const client = new Anthropic({ apiKey });
     const message = await client.messages.create({
@@ -44,7 +61,7 @@ router.post('/api/admin/insights', adminAuth, async (_req: Request, res: Respons
       messages: [
         {
           role: 'user',
-          content: `You are analyzing citizen feedback from a Bahamas Technology Town Hall survey. Here are ${responses.rows.length} responses:
+          content: `You are analyzing citizen feedback from a Bahamas Technology Town Hall survey. Here are ${citizenData.rows.length} responses:
 
 ${dataForAnalysis}
 

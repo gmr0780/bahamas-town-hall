@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import pool from '../services/database';
 import { adminAuth } from '../middleware/admin-auth';
-import { stringify } from 'csv-stringify/sync';
+import { stringify } from 'csv-stringify';
 
 const router = Router();
 
@@ -25,41 +25,82 @@ async function getExportData(query: Request['query']) {
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-  const result = await pool.query(
-    `SELECT c.name, c.email, c.phone, c.lives_in_bahamas, c.island, c.country, c.age_group, c.sector, c.created_at,
-            sr.tech_comfort_level, sr.primary_barrier, sr.interested_in_careers,
-            sr.desired_skill, sr.biggest_concern, sr.best_opportunity,
-            sr.gov_tech_suggestion, sr.preferred_gov_service,
-            (SELECT string_agg(tv.topic || ' (#' || tv.rank || ')', ', ' ORDER BY tv.rank)
-             FROM topic_votes tv WHERE tv.citizen_id = c.id) as topic_votes,
-            (SELECT string_agg(ia.area, ', ')
-             FROM interest_areas ia WHERE ia.citizen_id = c.id) as interest_areas
-     FROM citizens c
-     LEFT JOIN survey_responses sr ON sr.citizen_id = c.id
-     ${where}
-     ORDER BY c.created_at DESC`,
+  // Get questions for column headers
+  const questions = await pool.query(
+    'SELECT id, label, type FROM questions ORDER BY sort_order ASC'
+  );
+
+  // Get citizens with all their answers
+  const citizens = await pool.query(
+    `SELECT c.* FROM citizens c ${where} ORDER BY c.created_at DESC`,
     params
   );
 
-  return result.rows;
+  if (citizens.rows.length === 0) return { questions: questions.rows, rows: [] };
+
+  const citizenIds = citizens.rows.map((c: any) => c.id);
+  const answers = await pool.query(
+    `SELECT citizen_id, question_id, value FROM responses WHERE citizen_id = ANY($1)`,
+    [citizenIds]
+  );
+
+  // Index answers by citizen_id
+  const answerMap = new Map<number, Map<number, string>>();
+  for (const a of answers.rows) {
+    if (!answerMap.has(a.citizen_id)) answerMap.set(a.citizen_id, new Map());
+    answerMap.get(a.citizen_id)!.set(a.question_id, a.value);
+  }
+
+  const rows = citizens.rows.map((c: any) => {
+    const citizenAnswers = answerMap.get(c.id) || new Map();
+    const row: Record<string, any> = {
+      name: c.name,
+      email: c.email,
+      phone: c.phone,
+      lives_in_bahamas: c.lives_in_bahamas,
+      island: c.island,
+      country: c.country,
+      age_group: c.age_group,
+      sector: c.sector,
+      created_at: c.created_at,
+    };
+    for (const q of questions.rows) {
+      const val = citizenAnswers.get(q.id) || '';
+      // For checkbox/JSON arrays, flatten to comma-separated
+      if (q.type === 'checkbox' && val) {
+        try {
+          row[q.label] = JSON.parse(val).join(', ');
+        } catch {
+          row[q.label] = val;
+        }
+      } else {
+        row[q.label] = val;
+      }
+    }
+    return row;
+  });
+
+  return { questions: questions.rows, rows };
 }
 
 router.get('/api/admin/export/csv', adminAuth, async (req: Request, res: Response) => {
   try {
-    const data = await getExportData(req.query);
-    const csv = stringify(data, {
-      header: true,
-      columns: [
-        'name', 'email', 'phone', 'lives_in_bahamas', 'island', 'country', 'age_group', 'sector', 'created_at',
-        'tech_comfort_level', 'primary_barrier', 'interested_in_careers',
-        'desired_skill', 'biggest_concern', 'best_opportunity',
-        'gov_tech_suggestion', 'preferred_gov_service', 'topic_votes', 'interest_areas',
-      ],
-    });
+    const { questions, rows } = await getExportData(req.query);
+    const columns = [
+      'name', 'email', 'phone', 'lives_in_bahamas', 'island', 'country',
+      'age_group', 'sector', 'created_at',
+      ...questions.map((q: any) => q.label),
+    ];
 
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=town-hall-responses.csv');
-    res.send(csv);
+
+    const stringifier = stringify({ header: true, columns });
+    stringifier.pipe(res);
+    for (const row of rows) {
+      stringifier.write(row);
+    }
+    stringifier.end();
   } catch (err) {
     console.error('CSV export error:', err);
     res.status(500).json({ error: 'Failed to export CSV' });
@@ -68,10 +109,10 @@ router.get('/api/admin/export/csv', adminAuth, async (req: Request, res: Respons
 
 router.get('/api/admin/export/json', adminAuth, async (req: Request, res: Response) => {
   try {
-    const data = await getExportData(req.query);
+    const { rows } = await getExportData(req.query);
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename=town-hall-responses.json');
-    res.json(data);
+    res.json(rows);
   } catch (err) {
     console.error('JSON export error:', err);
     res.status(500).json({ error: 'Failed to export JSON' });

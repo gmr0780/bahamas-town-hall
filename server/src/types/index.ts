@@ -11,31 +11,21 @@ export interface Citizen {
   created_at: string;
 }
 
-export interface SurveyResponse {
+export interface Question {
   id: number;
-  citizen_id: number;
-  tech_comfort_level: number;
-  primary_barrier: string | null;
-  interested_in_careers: boolean;
-  desired_skill: string | null;
-  biggest_concern: string | null;
-  best_opportunity: string | null;
-  gov_tech_suggestion: string | null;
-  preferred_gov_service: string | null;
+  type: 'text' | 'textarea' | 'dropdown' | 'checkbox' | 'scale';
+  label: string;
+  description: string | null;
+  required: boolean;
+  sort_order: number;
+  options: any;
+  active: boolean;
   created_at: string;
 }
 
-export interface TopicVote {
-  id: number;
-  citizen_id: number;
-  topic: string;
-  rank: number;
-}
-
-export interface InterestArea {
-  id: number;
-  citizen_id: number;
-  area: string;
+export interface SurveyAnswer {
+  question_id: number;
+  value: string;
 }
 
 export interface CitizenSubmission {
@@ -47,14 +37,5 @@ export interface CitizenSubmission {
   country?: string;
   age_group: string;
   sector: string;
-  tech_comfort_level: number;
-  primary_barrier?: string;
-  interested_in_careers: boolean;
-  desired_skill?: string;
-  biggest_concern?: string;
-  best_opportunity?: string;
-  gov_tech_suggestion?: string;
-  preferred_gov_service?: string;
-  topic_votes: { topic: string; rank: number }[];
-  interest_areas: string[];
+  answers: SurveyAnswer[];
 }

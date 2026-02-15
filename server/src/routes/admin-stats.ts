@@ -6,7 +6,7 @@ const router = Router();
 
 router.get('/api/admin/stats', adminAuth, async (_req: Request, res: Response) => {
   try {
-    const [total, today, byIsland, byAgeGroup, bySector, avgComfort] = await Promise.all([
+    const [total, today, byIsland, byAgeGroup, bySector] = await Promise.all([
       pool.query('SELECT COUNT(*) as count FROM citizens'),
       pool.query(
         "SELECT COUNT(*) as count FROM citizens WHERE created_at::date = CURRENT_DATE"
@@ -20,9 +20,6 @@ router.get('/api/admin/stats', adminAuth, async (_req: Request, res: Response) =
       pool.query(
         'SELECT sector, COUNT(*) as count FROM citizens GROUP BY sector ORDER BY count DESC'
       ),
-      pool.query(
-        'SELECT ROUND(AVG(tech_comfort_level)::numeric, 2) as avg FROM survey_responses'
-      ),
     ]);
 
     res.json({
@@ -31,7 +28,6 @@ router.get('/api/admin/stats', adminAuth, async (_req: Request, res: Response) =
       by_island: byIsland.rows,
       by_age_group: byAgeGroup.rows,
       by_sector: bySector.rows,
-      avg_tech_comfort: parseFloat(avgComfort.rows[0].avg) || 0,
     });
   } catch (err) {
     console.error('Stats error:', err);

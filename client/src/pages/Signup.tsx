@@ -1,6 +1,6 @@
-import type { SurveyData } from '../hooks/useSurvey';
+import type { SurveyData } from '../lib/types';
 import SurveyLayout from '../components/SurveyLayout';
-import { ISLANDS, AGE_GROUPS, SECTORS } from '../lib/constants';
+import { ISLANDS, AGE_GROUPS, SECTORS } from '../lib/registration-options';
 
 interface Props {
   data: SurveyData;
@@ -15,7 +15,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
   };
 
   return (
-    <SurveyLayout step={1} title="Tell Us About Yourself">
+    <SurveyLayout step={1} title="Tell Us About Yourself" totalSteps={3}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
@@ -24,7 +24,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.name}
             onChange={(e) => updateData({ name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="Enter your full name"
           />
         </div>
@@ -35,7 +35,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.email}
             onChange={(e) => updateData({ email: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="your@email.com"
           />
         </div>
@@ -45,7 +45,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             type="tel"
             value={data.phone}
             onChange={(e) => updateData({ phone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="(242) 555-0000"
           />
         </div>
@@ -60,7 +60,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
               onClick={() => updateData({ lives_in_bahamas: true, country: '' })}
               className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
                 data.lives_in_bahamas
-                  ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
+                  ? 'border-bahamas-aqua bg-bahamas-aqua-light text-bahamas-aqua'
                   : 'border-gray-300 text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -71,7 +71,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
               onClick={() => updateData({ lives_in_bahamas: false })}
               className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
                 !data.lives_in_bahamas
-                  ? 'border-cyan-500 bg-cyan-50 text-cyan-700'
+                  ? 'border-bahamas-aqua bg-bahamas-aqua-light text-bahamas-aqua'
                   : 'border-gray-300 text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -90,7 +90,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
               required
               value={data.country}
               onChange={(e) => updateData({ country: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
               placeholder="e.g. United States, Canada, United Kingdom"
             />
           </div>
@@ -106,7 +106,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.island}
             onChange={(e) => updateData({ island: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">
               {data.lives_in_bahamas ? 'Select your island' : 'Select your home island'}
@@ -123,7 +123,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.age_group}
             onChange={(e) => updateData({ age_group: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select your age group</option>
             {AGE_GROUPS.map((ag) => (
@@ -137,7 +137,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.sector}
             onChange={(e) => updateData({ sector: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select your sector</option>
             {SECTORS.map((s) => (
@@ -148,7 +148,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
         <div className="pt-4 flex justify-end">
           <button
             type="submit"
-            className="bg-cyan-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-cyan-700 transition-colors"
+            className="bg-bahamas-aqua text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
             Next
           </button>

@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
-import { ISLANDS, AGE_GROUPS, SECTORS } from '../../lib/constants';
+import { ISLANDS, AGE_GROUPS, SECTORS } from '../../lib/registration-options';
 
 export default function ResponseBrowser() {
   const navigate = useNavigate();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState('');
   const [filters, setFilters] = useState({
     page: '1',
     limit: '20',
@@ -17,6 +18,19 @@ export default function ResponseBrowser() {
     sort: 'created_at',
     order: 'desc',
   });
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: value, page: '1' }));
+    }, 400);
+  }, []);
+
+  useEffect(() => {
+    return () => clearTimeout(debounceRef.current);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -38,9 +52,9 @@ export default function ResponseBrowser() {
           <input
             type="text"
             placeholder="Search name or email..."
-            value={filters.search}
-            onChange={(e) => updateFilter('search', e.target.value)}
-            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            value={searchInput}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           />
           <select
             value={filters.island}
@@ -83,7 +97,6 @@ export default function ResponseBrowser() {
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Island</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Age</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Sector</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Comfort</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
                 </tr>
               </thead>
@@ -98,7 +111,6 @@ export default function ResponseBrowser() {
                     <td className="px-4 py-3 text-gray-600">{row.island}</td>
                     <td className="px-4 py-3 text-gray-600">{row.age_group}</td>
                     <td className="px-4 py-3 text-gray-600">{row.sector}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.tech_comfort_level}/5</td>
                     <td className="px-4 py-3 text-gray-600">
                       {new Date(row.created_at).toLocaleDateString()}
                     </td>

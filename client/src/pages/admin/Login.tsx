@@ -36,7 +36,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
               placeholder="Enter admin password"
               required
             />
@@ -49,7 +49,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cyan-600 text-white py-2 rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:bg-gray-300"
+            className="w-full bg-bahamas-aqua text-white py-2 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:bg-gray-300"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
