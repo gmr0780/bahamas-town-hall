@@ -5,7 +5,25 @@ import type { CitizenSubmission } from '../types';
 const router = Router();
 
 router.post('/api/citizens', async (req: Request, res: Response) => {
-  const body: CitizenSubmission = req.body;
+  const body = req.body as CitizenSubmission & { turnstile_token?: string };
+
+  // Verify Turnstile token
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+  if (turnstileSecret) {
+    const token = body.turnstile_token;
+    if (!token) {
+      return res.status(400).json({ errors: ['Verification check is required'] });
+    }
+    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ secret: turnstileSecret, response: token }),
+    });
+    const verifyData = await verifyRes.json() as { success: boolean };
+    if (!verifyData.success) {
+      return res.status(403).json({ errors: ['Verification failed. Please try again.'] });
+    }
+  }
 
   // Validation
   const errors: string[] = [];

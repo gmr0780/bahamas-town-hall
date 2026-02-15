@@ -1,7 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { SurveyData, Question } from '../lib/types';
 import SurveyLayout from '../components/SurveyLayout';
 import { api } from '../lib/api';
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: string | HTMLElement, options: any) => string;
+      reset: (widgetId: string) => void;
+    };
+  }
+}
 
 interface Props {
   data: SurveyData;
@@ -13,8 +22,39 @@ export default function Confirmation({ data, questions, onBack }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string>();
+
+  const renderTurnstile = useCallback(() => {
+    if (turnstileRef.current && window.turnstile && !widgetIdRef.current) {
+      widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: '0x4AAAAAACdQ_pJ4jiR82h13',
+        callback: (token: string) => setTurnstileToken(token),
+        'error-callback': () => setTurnstileToken(''),
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    renderTurnstile();
+    // If turnstile script hasn't loaded yet, wait for it
+    if (!window.turnstile) {
+      const interval = setInterval(() => {
+        if (window.turnstile) {
+          renderTurnstile();
+          clearInterval(interval);
+        }
+      }, 200);
+      return () => clearInterval(interval);
+    }
+  }, [renderTurnstile]);
 
   const handleSubmit = async () => {
+    if (!turnstileToken) {
+      setError('Please complete the verification check.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
@@ -32,10 +72,16 @@ export default function Confirmation({ data, questions, onBack }: Props) {
         age_group: data.age_group,
         sector: data.sector,
         answers,
+        turnstile_token: turnstileToken,
       });
       setSubmitted(true);
     } catch (err: any) {
       setError(err.message || 'Failed to submit. Please try again.');
+      // Reset turnstile on failure
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(widgetIdRef.current);
+        setTurnstileToken('');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -119,6 +165,8 @@ export default function Confirmation({ data, questions, onBack }: Props) {
             {error}
           </div>
         )}
+
+        <div ref={turnstileRef} className="flex justify-center" />
 
         <div className="pt-4 flex justify-between">
           <button
