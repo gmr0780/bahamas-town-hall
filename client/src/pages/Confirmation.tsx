@@ -168,18 +168,18 @@ export default function Confirmation({ data, questions, onBack }: Props) {
 
         <div ref={turnstileRef} className="flex justify-center" />
 
-        <div className="pt-4 flex justify-between">
+        <div className="pt-4 flex gap-3 sm:gap-0 sm:justify-between">
           <button
             type="button"
             onClick={onBack}
-            className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 sm:flex-none px-6 py-3 sm:py-2 border border-gray-300 rounded-lg font-medium text-base sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Back
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="bg-bahamas-aqua text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:bg-gray-300"
+            className="flex-1 sm:flex-none bg-bahamas-aqua text-white px-6 py-3 sm:py-2 rounded-lg font-medium text-base sm:text-sm hover:opacity-90 transition-opacity disabled:bg-gray-300"
           >
             {submitting ? 'Submitting...' : 'Submit Survey'}
           </button>

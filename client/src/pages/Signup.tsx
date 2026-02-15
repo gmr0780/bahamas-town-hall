@@ -24,7 +24,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.name}
             onChange={(e) => updateData({ name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="Enter your full name"
           />
         </div>
@@ -35,7 +35,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.email}
             onChange={(e) => updateData({ email: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="your@email.com"
           />
         </div>
@@ -45,7 +45,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             type="tel"
             value={data.phone}
             onChange={(e) => updateData({ phone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder="(242) 555-0000"
           />
         </div>
@@ -54,11 +54,11 @@ export default function Signup({ data, updateData, onNext }: Props) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Do you currently live in The Bahamas? *
           </label>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => updateData({ lives_in_bahamas: true, country: '' })}
-              className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 sm:py-2 rounded-lg border text-sm font-medium transition-colors ${
                 data.lives_in_bahamas
                   ? 'border-bahamas-aqua bg-bahamas-aqua-light text-bahamas-aqua'
                   : 'border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -69,7 +69,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             <button
               type="button"
               onClick={() => updateData({ lives_in_bahamas: false })}
-              className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 sm:py-2 rounded-lg border text-sm font-medium transition-colors ${
                 !data.lives_in_bahamas
                   ? 'border-bahamas-aqua bg-bahamas-aqua-light text-bahamas-aqua'
                   : 'border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -89,7 +89,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
               required
               value={data.country}
               onChange={(e) => updateData({ country: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+              className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             >
               <option value="">Select your country</option>
               {COUNTRIES.map((c) => (
@@ -109,7 +109,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.island}
             onChange={(e) => updateData({ island: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">
               {data.lives_in_bahamas ? 'Select your island' : 'Select your home island'}
@@ -126,7 +126,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.age_group}
             onChange={(e) => updateData({ age_group: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select your age group</option>
             {AGE_GROUPS.map((ag) => (
@@ -140,7 +140,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
             required
             value={data.sector}
             onChange={(e) => updateData({ sector: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select your sector</option>
             {SECTORS.map((s) => (
@@ -151,7 +151,7 @@ export default function Signup({ data, updateData, onNext }: Props) {
         <div className="pt-4 flex justify-end">
           <button
             type="submit"
-            className="bg-bahamas-aqua text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="bg-bahamas-aqua text-white px-8 py-3 sm:px-6 sm:py-2 rounded-lg font-medium text-base sm:text-sm hover:opacity-90 transition-opacity w-full sm:w-auto"
           >
             Next
           </button>

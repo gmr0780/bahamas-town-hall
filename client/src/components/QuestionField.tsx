@@ -22,7 +22,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             required={question.required}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           />
         </div>
       );
@@ -41,7 +41,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
             placeholder={question.description || ''}
           />
         </div>
@@ -61,7 +61,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             required={question.required}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
           >
             <option value="">Select an option</option>
             {options.map((opt) => (
@@ -96,7 +96,7 @@ export default function QuestionField({ question, value, onChange }: Props) {
             {options.map((opt) => (
               <label
                 key={opt}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3.5 sm:py-2.5 rounded-lg border cursor-pointer transition-colors ${
                   selected.includes(opt)
                     ? 'border-bahamas-aqua bg-bahamas-aqua-light'
                     : 'border-gray-200 hover:border-gray-300'
@@ -129,25 +129,29 @@ export default function QuestionField({ question, value, onChange }: Props) {
           {question.description && (
             <p className="text-xs text-gray-500 mb-2">{question.description}</p>
           )}
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">{opts.min_label}</span>
-            <div className="flex gap-2">
-              {levels.map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => onChange(String(level))}
-                  className={`w-10 h-10 rounded-full font-semibold transition-colors ${
-                    value === String(level)
-                      ? 'bg-bahamas-aqua text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <span className="text-xs sm:text-sm text-gray-500 sm:hidden">{opts.min_label}</span>
+              <span className="text-sm text-gray-500 hidden sm:inline">{opts.min_label}</span>
+              <div className="flex gap-1.5 sm:gap-2 flex-1 justify-center">
+                {levels.map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => onChange(String(level))}
+                    className={`w-11 h-11 sm:w-10 sm:h-10 rounded-full font-semibold text-base sm:text-sm transition-colors ${
+                      value === String(level)
+                        ? 'bg-bahamas-aqua text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs sm:text-sm text-gray-500 sm:hidden">{opts.max_label}</span>
+              <span className="text-sm text-gray-500 hidden sm:inline">{opts.max_label}</span>
             </div>
-            <span className="text-sm text-gray-500">{opts.max_label}</span>
           </div>
         </div>
       );

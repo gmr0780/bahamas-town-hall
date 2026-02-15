@@ -58,17 +58,17 @@ export default function Survey() {
                 onChange={(val) => updateAnswer(q.id, val)}
               />
             ))}
-            <div className="pt-4 flex justify-between">
+            <div className="pt-4 flex gap-3 sm:gap-0 sm:justify-between">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 sm:flex-none px-6 py-3 sm:py-2 border border-gray-300 rounded-lg font-medium text-base sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Back
               </button>
               <button
                 type="submit"
-                className="bg-bahamas-aqua text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                className="flex-1 sm:flex-none bg-bahamas-aqua text-white px-6 py-3 sm:py-2 rounded-lg font-medium text-base sm:text-sm hover:opacity-90 transition-opacity"
               >
                 Next
               </button>
