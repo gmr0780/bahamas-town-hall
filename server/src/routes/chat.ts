@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
+import multer from 'multer';
 import pool from '../services/database';
 import { sendThankYouEmail } from '../services/email';
 import Anthropic from '@anthropic-ai/sdk';
@@ -670,6 +671,66 @@ ${commonThemes || 'Not enough data yet.'}`,
   } catch (err) {
     console.error('Chat summary error:', err);
     return res.status(500).json({ error: 'Failed to generate summary' });
+  }
+});
+
+// --- POST /api/chat/transcribe ---
+
+const ALLOWED_AUDIO_MIMES = [
+  'audio/webm', 'audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-m4a',
+];
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_AUDIO_MIMES.some((mime) => file.mimetype.startsWith(mime.split('/')[0]) && file.mimetype.includes(mime.split('/')[1]))) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed'));
+    }
+  },
+});
+
+router.post('/api/chat/transcribe', upload.single('audio'), async (req: Request, res: Response) => {
+  try {
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey) {
+      return res.status(500).json({ error: 'OPENAI_API_KEY not configured' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No audio file provided' });
+    }
+
+    // Build multipart form for Whisper API
+    const formData = new FormData();
+    const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+    const ext = req.file.mimetype.includes('webm') ? 'webm'
+      : req.file.mimetype.includes('mp4') || req.file.mimetype.includes('m4a') ? 'm4a'
+      : req.file.mimetype.includes('ogg') ? 'ogg'
+      : req.file.mimetype.includes('wav') ? 'wav'
+      : 'webm';
+    formData.append('file', blob, `audio.${ext}`);
+    formData.append('model', 'whisper-1');
+
+    const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${openaiKey}` },
+      body: formData,
+    });
+
+    if (!whisperRes.ok) {
+      const err = await whisperRes.text();
+      console.error('Whisper API error:', whisperRes.status, err);
+      return res.status(502).json({ error: 'Transcription failed' });
+    }
+
+    const data = await whisperRes.json() as { text: string };
+    return res.json({ text: data.text });
+  } catch (err) {
+    console.error('Transcribe error:', err);
+    return res.status(500).json({ error: 'Transcription failed' });
   }
 });
 

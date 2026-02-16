@@ -20,6 +20,10 @@ export default function ChatSurvey() {
   const [personality, setPersonality] = useState<{ title: string; emoji: string; description: string } | null>(null);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileReady, setTurnstileReady] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [micError, setMicError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,6 +31,10 @@ export default function ChatSurvey() {
   const widgetIdRef = useRef<string>(undefined);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasSentInitial = useRef(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -68,6 +76,121 @@ export default function ChatSurvey() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [turnstileReady]);
+
+  // Auto-dismiss mic errors
+  useEffect(() => {
+    if (!micError) return;
+    const t = setTimeout(() => setMicError(null), 5000);
+    return () => clearTimeout(t);
+  }, [micError]);
+
+  // Cleanup recording on unmount
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+    };
+  }, []);
+
+  const startRecording = async () => {
+    setMicError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      // Pick a supported MIME type
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : '';
+
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        // Stop all tracks
+        stream.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+
+        setIsRecording(false);
+        setRecordingDuration(0);
+
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType });
+        if (blob.size === 0) return;
+
+        // Transcribe
+        setIsTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append('audio', blob, `recording.${recorder.mimeType.includes('mp4') ? 'm4a' : 'webm'}`);
+          const res = await fetch('/api/chat/transcribe', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Transcription failed');
+          if (data.text) {
+            setInput((prev) => (prev ? prev + ' ' + data.text : data.text));
+            inputRef.current?.focus();
+          }
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : 'Transcription failed';
+          setMicError(msg);
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+
+      recorder.start();
+      setIsRecording(true);
+      setRecordingDuration(0);
+
+      // Duration timer
+      const startTime = Date.now();
+      recordingTimerRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setRecordingDuration(elapsed);
+        // Auto-stop at 60s
+        if (elapsed >= 60) {
+          recorder.stop();
+        }
+      }, 1000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Microphone access denied';
+      if (msg.includes('Permission') || msg.includes('NotAllowed') || msg.includes('denied')) {
+        setMicError('Microphone permission denied. Please allow access in your browser settings.');
+      } else if (msg.includes('NotFound') || msg.includes('no audio')) {
+        setMicError('No microphone found. Please connect a microphone.');
+      } else {
+        setMicError(msg);
+      }
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+  };
 
   const sendMessage = async (text: string, token?: string) => {
     // Add user message to chat (unless it's the initial empty message)
@@ -344,6 +467,32 @@ export default function ChatSurvey() {
         </div>
       )}
 
+      {/* Recording / transcribing status */}
+      {(isRecording || isTranscribing || micError) && !complete && (
+        <div className="px-4 pb-1 flex-shrink-0">
+          <div className="max-w-2xl mx-auto">
+            {isRecording && (
+              <div className="flex items-center gap-2 text-sm text-red-600 animate-pulse">
+                <span className="w-2 h-2 bg-red-500 rounded-full" />
+                Recording... {recordingDuration}s / 60s
+              </div>
+            )}
+            {isTranscribing && (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Transcribing...
+              </div>
+            )}
+            {micError && (
+              <div className="text-sm text-red-500">{micError}</div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Input bar */}
       {!complete && turnstileReady && (
         <div className="bg-white border-t border-gray-200 px-4 py-3 flex-shrink-0">
@@ -353,13 +502,34 @@ export default function ChatSurvey() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={loading ? 'Bahamas AI is typing...' : 'Type your message...'}
-              disabled={loading}
+              placeholder={loading ? 'Bahamas AI is typing...' : isTranscribing ? 'Transcribing...' : 'Type your message...'}
+              disabled={loading || isTranscribing}
               className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400"
             />
             <button
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={loading || isTranscribing}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:bg-gray-300 ${
+                isRecording
+                  ? 'bg-red-500 text-white animate-pulse hover:bg-red-600'
+                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+              }`}
+              title={isRecording ? 'Stop recording' : 'Start voice input'}
+            >
+              {isRecording ? (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="6" y="6" width="12" height="12" rx="2" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z" />
+                </svg>
+              )}
+            </button>
+            <button
               type="submit"
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || isRecording || isTranscribing}
               className="w-10 h-10 bg-bahamas-aqua text-white rounded-full flex items-center justify-center hover:opacity-90 transition-opacity disabled:bg-gray-300"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

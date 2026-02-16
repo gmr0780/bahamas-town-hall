@@ -4,8 +4,6 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts';
 
-const COLORS = ['#00778B', '#FFC72C', '#0891b2', '#06b6d4', '#22d3ee', '#67e8f9', '#0e7490', '#155e75'];
-
 export default function Demographics() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

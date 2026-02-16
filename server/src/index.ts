@@ -52,10 +52,19 @@ const submissionLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const transcribeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many transcription requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // API routes
 app.use(healthRouter);
 app.use(pageViewsRouter);
 app.use(siteSettingsRouter);
+app.use('/api/chat/transcribe', transcribeLimiter);
 app.use(chatRouter);
 app.use(publicResultsRouter);
 app.use(questionsRouter);
