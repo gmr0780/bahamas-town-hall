@@ -26,7 +26,7 @@ export default function AIInsights() {
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="font-semibold text-gray-800">Claude Analysis</h3>
+            <h3 className="font-semibold text-gray-800">Bahamas AI Analysis</h3>
             <p className="text-sm text-gray-500">
               Generate AI-powered analysis of citizen survey responses
             </p>
@@ -49,7 +49,7 @@ export default function AIInsights() {
         {loading && (
           <div className="flex items-center gap-3 text-gray-500">
             <div className="animate-spin w-5 h-5 border-2 border-bahamas-aqua border-t-transparent rounded-full" />
-            Analyzing responses with Claude AI...
+            Analyzing responses with Bahamas AI...
           </div>
         )}
 
