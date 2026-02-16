@@ -428,17 +428,20 @@ router.post('/api/chat/message', async (req: Request, res: Response) => {
       session.phase = 'survey';
     }
 
-    // Check if survey is complete
+    // Advance past any already-answered questions
     if (session.phase === 'survey' && !result.is_asking_followup) {
-      // Advance past any already-answered questions
       while (
         session.currentQuestionIndex < session.questions.length &&
         session.answers[session.questions[session.currentQuestionIndex].id] !== undefined
       ) {
         session.currentQuestionIndex++;
       }
+    }
 
-      if (session.currentQuestionIndex >= session.questions.length && areDemographicsComplete(session.demographics)) {
+    // Check if survey is complete (always check, even during follow-ups)
+    if (session.phase === 'survey') {
+      const allAnswered = session.questions.every((q) => session.answers[q.id] !== undefined);
+      if (allAnswered && areDemographicsComplete(session.demographics)) {
         // All done! Submit to DB
         try {
           const citizenId = await submitSurvey(session);
