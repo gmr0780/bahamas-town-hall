@@ -4,6 +4,7 @@ import { api } from '../../lib/api';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      await api.login(password);
+      await api.login(password, email || undefined);
       navigate('/admin');
     } catch (err: any) {
       setError(err.message || 'Invalid password');
@@ -30,6 +31,16 @@ export default function Login() {
           <p className="text-sm text-gray-500">Bahamas Technology Town Hall</p>
         </div>
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email (optional)</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+              placeholder="Enter email address"
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input

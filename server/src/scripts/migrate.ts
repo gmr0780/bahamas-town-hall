@@ -13,10 +13,12 @@ async function migrate() {
 
   const baseSql = readFileSync(resolve(__dirname, '../../../db/migrate.sql'), 'utf-8');
   const dynamicSql = readFileSync(resolve(__dirname, '../../../db/migrate-dynamic.sql'), 'utf-8');
+  const featuresSql = readFileSync(resolve(__dirname, '../../../db/migrate-features.sql'), 'utf-8');
 
   try {
     await pool.query(baseSql);
     await pool.query(dynamicSql);
+    await pool.query(featuresSql);
     console.log('Migration completed successfully');
   } catch (err) {
     console.error('Migration failed:', err);

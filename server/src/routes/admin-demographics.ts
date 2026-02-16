@@ -4,19 +4,51 @@ import { adminAuth } from '../middleware/admin-auth';
 
 const router = Router();
 
-router.get('/api/admin/demographics', adminAuth, async (_req: Request, res: Response) => {
+router.get('/api/admin/demographics', adminAuth, async (req: Request, res: Response) => {
   try {
-    // Citizen demographics (static fields)
+    const dateFrom = req.query.date_from as string | undefined;
+    const dateTo = req.query.date_to as string | undefined;
+
+    const conditions: string[] = [];
+    const dateParams: any[] = [];
+    let paramIdx = 1;
+
+    if (dateFrom) {
+      conditions.push(`c.created_at >= $${paramIdx++}::date`);
+      dateParams.push(dateFrom);
+    }
+    if (dateTo) {
+      conditions.push(`c.created_at < ($${paramIdx++}::date + interval '1 day')`);
+      dateParams.push(dateTo);
+    }
+
+    const citizenWhere = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Citizen demographics (static fields) - use alias 'c' for citizens
     const [byIsland, byAgeGroup, bySector] = await Promise.all([
-      pool.query('SELECT island, COUNT(*) as count FROM citizens GROUP BY island ORDER BY count DESC'),
-      pool.query('SELECT age_group, COUNT(*) as count FROM citizens GROUP BY age_group ORDER BY count DESC'),
-      pool.query('SELECT sector, COUNT(*) as count FROM citizens GROUP BY sector ORDER BY count DESC'),
+      pool.query(`SELECT c.island, COUNT(*) as count FROM citizens c ${citizenWhere} GROUP BY c.island ORDER BY count DESC`, dateParams),
+      pool.query(`SELECT c.age_group, COUNT(*) as count FROM citizens c ${citizenWhere} GROUP BY c.age_group ORDER BY count DESC`, dateParams),
+      pool.query(`SELECT c.sector, COUNT(*) as count FROM citizens c ${citizenWhere} GROUP BY c.sector ORDER BY count DESC`, dateParams),
     ]);
 
-    // Dynamic question aggregations
+    // Dynamic question aggregations - need to join through citizens for date filter
     const questions = await pool.query(
       'SELECT id, type, label, options FROM questions ORDER BY sort_order ASC'
     );
+
+    // Build response conditions with offset param indices (since $1 = question_id)
+    const responseConditions: string[] = [];
+    const offset = 1; // $1 is question_id
+    let rParamIdx = offset + 1;
+    if (dateFrom) {
+      responseConditions.push(`c.created_at >= $${rParamIdx++}::date`);
+    }
+    if (dateTo) {
+      responseConditions.push(`c.created_at < ($${rParamIdx++}::date + interval '1 day')`);
+    }
+    const responseWhere = responseConditions.length > 0
+      ? `AND ${responseConditions.join(' AND ')}`
+      : '';
 
     const questionStats = [];
     for (const q of questions.rows) {
@@ -24,41 +56,40 @@ router.get('/api/admin/demographics', adminAuth, async (_req: Request, res: Resp
 
       if (q.type === 'scale') {
         const result = await pool.query(
-          `SELECT value, COUNT(*) as count FROM responses WHERE question_id = $1 GROUP BY value ORDER BY value`,
-          [q.id]
+          `SELECT r.value, COUNT(*) as count FROM responses r JOIN citizens c ON c.id = r.citizen_id WHERE r.question_id = $1 ${responseWhere} GROUP BY r.value ORDER BY r.value`,
+          [q.id, ...dateParams]
         );
         const avg = await pool.query(
-          `SELECT ROUND(AVG(value::numeric), 2) as avg FROM responses WHERE question_id = $1`,
-          [q.id]
+          `SELECT ROUND(AVG(r.value::numeric), 2) as avg FROM responses r JOIN citizens c ON c.id = r.citizen_id WHERE r.question_id = $1 ${responseWhere}`,
+          [q.id, ...dateParams]
         );
         stats.distribution = result.rows;
         stats.average = avg.rows[0]?.avg ? parseFloat(avg.rows[0].avg) : 0;
       } else if (q.type === 'dropdown') {
         const result = await pool.query(
-          `SELECT value, COUNT(*) as count FROM responses WHERE question_id = $1 GROUP BY value ORDER BY count DESC`,
-          [q.id]
+          `SELECT r.value, COUNT(*) as count FROM responses r JOIN citizens c ON c.id = r.citizen_id WHERE r.question_id = $1 ${responseWhere} GROUP BY r.value ORDER BY count DESC`,
+          [q.id, ...dateParams]
         );
         stats.distribution = result.rows;
       } else if (q.type === 'checkbox') {
-        // Checkbox values are stored as JSON arrays -- unnest and count
         const result = await pool.query(
           `SELECT item, COUNT(*) as count
-           FROM responses, jsonb_array_elements_text(value::jsonb) AS item
-           WHERE question_id = $1
+           FROM responses r JOIN citizens c ON c.id = r.citizen_id, jsonb_array_elements_text(r.value::jsonb) AS item
+           WHERE r.question_id = $1 ${responseWhere}
            GROUP BY item ORDER BY count DESC`,
-          [q.id]
+          [q.id, ...dateParams]
         );
         stats.distribution = result.rows;
       } else if (q.type === 'text' || q.type === 'textarea') {
         const count = await pool.query(
-          'SELECT COUNT(*) as count FROM responses WHERE question_id = $1',
-          [q.id]
+          `SELECT COUNT(*) as count FROM responses r JOIN citizens c ON c.id = r.citizen_id WHERE r.question_id = $1 ${responseWhere}`,
+          [q.id, ...dateParams]
         );
         const recent = await pool.query(
           `SELECT r.value, c.island, c.age_group
            FROM responses r JOIN citizens c ON c.id = r.citizen_id
-           WHERE r.question_id = $1 ORDER BY r.created_at DESC LIMIT 10`,
-          [q.id]
+           WHERE r.question_id = $1 ${responseWhere} ORDER BY r.created_at DESC LIMIT 10`,
+          [q.id, ...dateParams]
         );
         stats.total_responses = parseInt(count.rows[0].count);
         stats.recent = recent.rows;

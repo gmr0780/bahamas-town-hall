@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import pool from '../services/database';
+import { sendThankYouEmail } from '../services/email';
 import type { CitizenSubmission } from '../types';
 
 const router = Router();
@@ -23,6 +24,12 @@ router.post('/api/citizens', async (req: Request, res: Response) => {
     if (!verifyData.success) {
       return res.status(403).json({ errors: ['Verification failed. Please try again.'] });
     }
+  }
+
+  // Check if survey is open
+  const surveyStatus = await pool.query("SELECT value FROM site_settings WHERE key = 'survey_open'");
+  if (surveyStatus.rows[0]?.value !== 'true') {
+    return res.status(403).json({ errors: ['The survey is currently closed'] });
   }
 
   // Validation
@@ -77,6 +84,10 @@ router.post('/api/citizens', async (req: Request, res: Response) => {
     }
 
     await client.query('COMMIT');
+
+    // Fire-and-forget thank-you email
+    sendThankYouEmail(body.email, body.name).catch(() => {});
+
     res.status(201).json({ id: citizenId });
   } catch (err: any) {
     await client.query('ROLLBACK');

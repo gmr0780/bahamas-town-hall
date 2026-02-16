@@ -1,13 +1,21 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [surveyOpen, setSurveyOpen] = useState<boolean | null>(null);
+  const [responseCount, setResponseCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    api.getSurveyStatus().then((r) => setSurveyOpen(r.survey_open));
+    api.getResponseCount().then((r) => setResponseCount(r.count));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bahamas-aqua-light to-white flex items-center justify-center px-4 py-8">
       <div className="max-w-xl w-full text-center">
         <div className="mb-4 sm:mb-6">
-          {/* Bahamas flag-inspired emblem */}
           <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl mb-3 sm:mb-4 relative overflow-hidden">
             <div className="absolute inset-0 bg-bahamas-aqua" />
             <div className="absolute left-0 top-0 bottom-0 w-7 sm:w-8 bg-bahamas-black"
@@ -28,12 +36,34 @@ export default function Landing() {
           Your feedback will help shape national technology policy, infrastructure
           investment, and digital skills programs. This survey takes about 5 minutes.
         </p>
-        <button
-          onClick={() => navigate('/survey')}
-          className="bg-bahamas-aqua text-white px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl w-full sm:w-auto"
-        >
-          Take the Survey
-        </button>
+
+        {responseCount !== null && responseCount > 0 && (
+          <p className="text-sm text-bahamas-aqua font-medium mb-4">
+            Join {responseCount.toLocaleString()} Bahamian{responseCount !== 1 ? 's' : ''} who've shared their voice
+          </p>
+        )}
+
+        {surveyOpen === false ? (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p className="text-yellow-800 font-medium">The survey is currently closed</p>
+            <p className="text-yellow-600 text-sm mt-1">Please check back later.</p>
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate('/survey')}
+            className="bg-bahamas-aqua text-white px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl w-full sm:w-auto"
+          >
+            Take the Survey
+          </button>
+        )}
+        <div className="mt-4 flex justify-center gap-4">
+          <button
+            onClick={() => navigate('/results')}
+            className="text-bahamas-aqua hover:opacity-80 text-sm font-medium"
+          >
+            View Survey Results
+          </button>
+        </div>
         <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-400">
           Your responses are collected for policy research purposes only.
         </p>

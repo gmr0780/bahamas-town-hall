@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Landing from './pages/Landing';
 import Survey from './pages/Survey';
+import Results from './pages/Results';
 import AdminLayout from './components/AdminLayout';
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
@@ -11,6 +12,7 @@ import ResponseDetail from './pages/admin/ResponseDetail';
 import Demographics from './pages/admin/Demographics';
 import AIInsights from './pages/admin/AIInsights';
 import Export from './pages/admin/Export';
+import AdminSettings from './pages/admin/AdminSettings';
 
 function App() {
   return (
@@ -19,6 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/survey" element={<Survey />} />
+        <Route path="/results" element={<Results />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
@@ -28,6 +31,7 @@ function App() {
           <Route path="demographics" element={<Demographics />} />
           <Route path="insights" element={<AIInsights />} />
           <Route path="export" element={<Export />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>

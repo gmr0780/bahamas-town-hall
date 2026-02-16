@@ -99,4 +99,26 @@ router.get('/api/admin/responses/:id', adminAuth, async (req: Request, res: Resp
   }
 });
 
+router.delete('/api/admin/responses/:id', adminAuth, async (req: Request, res: Response) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    await client.query('BEGIN');
+    await client.query('DELETE FROM responses WHERE citizen_id = $1', [id]);
+    const result = await client.query('DELETE FROM citizens WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Response not found' });
+    }
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Delete response error:', err);
+    res.status(500).json({ error: 'Failed to delete response' });
+  } finally {
+    client.release();
+  }
+});
+
 export default router;

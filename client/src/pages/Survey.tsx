@@ -10,6 +10,7 @@ export default function Survey() {
   const [step, setStep] = useState(1);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
+  const [surveyOpen, setSurveyOpen] = useState<boolean | null>(null);
   const [data, setData] = useState<SurveyData>({
     name: '', email: '', phone: '',
     lives_in_bahamas: true, island: '', country: '',
@@ -18,7 +19,10 @@ export default function Survey() {
   });
 
   useEffect(() => {
-    api.getQuestions().then(setQuestions).finally(() => setLoading(false));
+    Promise.all([
+      api.getQuestions().then(setQuestions),
+      api.getSurveyStatus().then((r) => setSurveyOpen(r.survey_open)),
+    ]).finally(() => setLoading(false));
   }, []);
 
   const updateData = (updates: Partial<SurveyData>) => {
@@ -36,6 +40,23 @@ export default function Survey() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-bahamas-aqua-light to-white flex items-center justify-center">
         <p className="text-gray-500">Loading survey...</p>
+      </div>
+    );
+  }
+
+  if (!loading && surveyOpen === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-bahamas-aqua-light to-white flex items-center justify-center px-4">
+        <div className="max-w-md text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Survey Closed</h1>
+          <p className="text-gray-600 mb-4">The survey is currently not accepting responses.</p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="bg-bahamas-aqua text-white px-6 py-2 rounded-lg font-medium hover:opacity-90"
+          >
+            Return Home
+          </button>
+        </div>
       </div>
     );
   }

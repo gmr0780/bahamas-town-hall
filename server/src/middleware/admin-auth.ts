@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
-export function generateToken(): string {
-  return jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+export function generateToken(payload: Record<string, any> = {}): string {
+  return jwt.sign({ role: 'admin', ...payload }, JWT_SECRET, { expiresIn: '24h' });
 }
 
 export function adminAuth(req: Request, res: Response, next: NextFunction) {

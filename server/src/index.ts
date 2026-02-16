@@ -15,8 +15,11 @@ import adminResponsesRouter from './routes/admin-responses';
 import adminDemographicsRouter from './routes/admin-demographics';
 import adminInsightsRouter from './routes/admin-insights';
 import adminExportRouter from './routes/admin-export';
+import adminManagementRouter from './routes/admin-management';
 import questionsRouter from './routes/questions';
 import adminQuestionsRouter from './routes/admin-questions';
+import siteSettingsRouter from './routes/site-settings';
+import publicResultsRouter from './routes/public-results';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -49,6 +52,8 @@ const submissionLimiter = rateLimit({
 
 // API routes
 app.use(healthRouter);
+app.use(siteSettingsRouter);
+app.use(publicResultsRouter);
 app.use(questionsRouter);
 app.use('/api/citizens', submissionLimiter);
 app.use(citizensRouter);
@@ -60,6 +65,7 @@ app.use(adminResponsesRouter);
 app.use(adminDemographicsRouter);
 app.use(adminInsightsRouter);
 app.use(adminExportRouter);
+app.use(adminManagementRouter);
 
 // Production: serve client build
 if (process.env.NODE_ENV === 'production') {

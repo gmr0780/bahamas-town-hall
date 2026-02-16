@@ -28,17 +28,24 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 export const api = {
   // Public
   getQuestions: () => request<Question[]>('/api/questions'),
+  getSurveyStatus: () => request<{ survey_open: boolean }>('/api/survey-status'),
+  getResponseCount: () => request<{ count: number }>('/api/response-count'),
   submitSurvey: (data: any) =>
     request<{ id: number }>('/api/citizens', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  updateSurveyStatus: (survey_open: boolean) =>
+    request<{ survey_open: boolean }>('/api/admin/survey-status', {
+      method: 'PUT',
+      body: JSON.stringify({ survey_open }),
+    }),
 
   // Admin auth
-  login: (password: string) =>
+  login: (password: string, email?: string) =>
     request<{ success: boolean }>('/api/admin/login', {
       method: 'POST',
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password }),
     }),
   logout: () =>
     request<{ success: boolean }>('/api/admin/logout', { method: 'POST' }),
@@ -46,13 +53,21 @@ export const api = {
     request<{ authenticated: boolean }>('/api/admin/check'),
 
   // Admin data
-  getStats: () => request<any>('/api/admin/stats'),
+  getStats: (params?: Record<string, string>) => {
+    const qs = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return request<any>(`/api/admin/stats${qs}`);
+  },
   getResponses: (params: Record<string, string>) => {
     const qs = new URLSearchParams(params).toString();
     return request<any>(`/api/admin/responses?${qs}`);
   },
   getResponse: (id: number) => request<any>(`/api/admin/responses/${id}`),
-  getDemographics: () => request<any>('/api/admin/demographics'),
+  deleteResponse: (id: number) =>
+    request<{ success: boolean }>(`/api/admin/responses/${id}`, { method: 'DELETE' }),
+  getDemographics: (params?: Record<string, string>) => {
+    const qs = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return request<any>(`/api/admin/demographics${qs}`);
+  },
   generateInsights: () =>
     request<{ insights: string }>('/api/admin/insights', { method: 'POST' }),
 
@@ -75,6 +90,16 @@ export const api = {
     }),
   deleteQuestion: (id: number) =>
     request<any>(`/api/admin/questions/${id}`, { method: 'DELETE' }),
+
+  // Admin management
+  getAdmins: () => request<any[]>('/api/admin/admins'),
+  createAdmin: (data: { email: string; password: string; name: string }) =>
+    request<any>('/api/admin/admins', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  deleteAdmin: (id: number) =>
+    request<{ success: boolean }>(`/api/admin/admins/${id}`, { method: 'DELETE' }),
 
   // Export
   exportCsv: (params: Record<string, string>) => {
