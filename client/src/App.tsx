@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Landing from './pages/Landing';
 import Survey from './pages/Survey';
+import ChatSurvey from './pages/ChatSurvey';
 import Results from './pages/Results';
 import AdminLayout from './components/AdminLayout';
 import Login from './pages/admin/Login';
@@ -21,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/survey" element={<Survey />} />
+        <Route path="/survey/chat" element={<ChatSurvey />} />
         <Route path="/results" element={<Results />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminLayout />}>

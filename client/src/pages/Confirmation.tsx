@@ -23,6 +23,7 @@ export default function Confirmation({ data, questions, onBack }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string>(undefined);
 
@@ -62,7 +63,7 @@ export default function Confirmation({ data, questions, onBack }: Props) {
         .filter(([, value]) => value !== '' && value !== '[]')
         .map(([qid, value]) => ({ question_id: parseInt(qid), value }));
 
-      await api.submitSurvey({
+      const result = await api.submitSurvey({
         name: data.name,
         email: data.email,
         phone: data.phone || undefined,
@@ -75,6 +76,15 @@ export default function Confirmation({ data, questions, onBack }: Props) {
         turnstile_token: turnstileToken,
       });
       setSubmitted(true);
+      // Fetch AI summary (fire-and-forget, don't block)
+      fetch('/api/chat/summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ citizen_id: result.id }),
+      })
+        .then((r) => r.json())
+        .then((d) => { if (d.summary) setAiSummary(d.summary); })
+        .catch(() => {});
     } catch (err: any) {
       setError(err.message || 'Failed to submit. Please try again.');
       // Reset turnstile on failure
@@ -119,6 +129,21 @@ export default function Confirmation({ data, questions, onBack }: Props) {
             Your feedback has been submitted successfully. Your voice matters in shaping
             the technology future of The Bahamas.
           </p>
+
+          {aiSummary && (
+            <div className="bg-white rounded-lg border border-gray-200 p-5 mb-4 text-left">
+              <div className="flex items-center gap-2 mb-3">
+                <svg width="20" height="13" viewBox="0 0 300 200" className="rounded-sm flex-shrink-0">
+                  <rect width="300" height="66.67" fill="#00B4D8" />
+                  <rect y="66.67" width="300" height="66.67" fill="#FFD700" />
+                  <rect y="133.33" width="300" height="66.67" fill="#00B4D8" />
+                  <polygon points="0,0 120,100 0,200" fill="#1A1A2E" />
+                </svg>
+                <h3 className="font-semibold text-gray-800">Bahamas AI Insight</h3>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">{aiSummary}</p>
+            </div>
+          )}
 
           <div className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
             <h3 className="font-semibold text-gray-800 mb-3">Share the Town Hall</h3>

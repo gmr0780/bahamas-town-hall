@@ -20,6 +20,7 @@ import questionsRouter from './routes/questions';
 import adminQuestionsRouter from './routes/admin-questions';
 import siteSettingsRouter from './routes/site-settings';
 import publicResultsRouter from './routes/public-results';
+import chatRouter from './routes/chat';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -53,6 +54,7 @@ const submissionLimiter = rateLimit({
 // API routes
 app.use(healthRouter);
 app.use(siteSettingsRouter);
+app.use(chatRouter);
 app.use(publicResultsRouter);
 app.use(questionsRouter);
 app.use('/api/citizens', submissionLimiter);

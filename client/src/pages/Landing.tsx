@@ -55,12 +55,20 @@ export default function Landing() {
             <p className="text-yellow-600 text-sm mt-1">Please check back later.</p>
           </div>
         ) : (
-          <button
-            onClick={() => navigate('/survey')}
-            className="bg-bahamas-aqua text-white px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl w-full sm:w-auto"
-          >
-            Take the Survey
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate('/survey')}
+              className="bg-bahamas-aqua text-white px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl w-full sm:w-auto"
+            >
+              Take the Survey
+            </button>
+            <button
+              onClick={() => navigate('/survey/chat')}
+              className="bg-white text-bahamas-aqua border-2 border-bahamas-aqua px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:bg-bahamas-aqua hover:text-white transition-colors shadow-lg hover:shadow-xl w-full sm:w-auto"
+            >
+              Chat with Bahamas AI
+            </button>
+          </div>
         )}
         <div className="mt-4 flex justify-center gap-4">
           <button
