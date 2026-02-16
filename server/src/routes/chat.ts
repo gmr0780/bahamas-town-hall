@@ -609,11 +609,20 @@ router.post('/api/chat/summary', async (req: Request, res: Response) => {
     const client = new Anthropic({ apiKey });
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 512,
+      max_tokens: 1024,
       messages: [
         {
           role: 'user',
-          content: `You are Bahamas AI. A citizen just completed the Technology Town Hall survey. Generate a brief, personalized insight (3-4 sentences) about their responses compared to other Bahamians. Be warm and encouraging. Mention something specific about their answers. End with encouragement to share the survey.
+          content: `You are Bahamas AI. A citizen just completed the Technology Town Hall survey. You must respond with valid JSON only — no markdown, no code fences, no extra text.
+
+Generate TWO things:
+
+1. A fun "Tech Personality" based on their answers. Be creative — invent a unique, Bahamas-flavored tech personality title (e.g. "The Island Innovator", "The Digital Conch Shell", "The Coral Coder", "The Nassau Navigator"). Pick an emoji that fits. Write a short, playful 1-2 sentence description of this personality type that references their specific answers.
+
+2. A brief, personalized insight (3-4 sentences) about their responses compared to other Bahamians. Be warm and encouraging. Mention something specific about their answers. End with encouragement to share the survey.
+
+Respond with this exact JSON structure:
+{"personality_title":"<title>","personality_emoji":"<single emoji>","personality_description":"<1-2 sentences>","summary":"<3-4 sentences>"}
 
 Their info:
 Name: ${citizen.name}
@@ -635,7 +644,20 @@ ${commonThemes || 'Not enough data yet.'}`,
     });
 
     const textContent = response.content.find((c) => c.type === 'text');
-    return res.json({ summary: textContent?.text || 'Thank you for your feedback!' });
+    const raw = textContent?.text || '';
+
+    try {
+      const parsed = JSON.parse(raw);
+      return res.json({
+        personality_title: parsed.personality_title || null,
+        personality_emoji: parsed.personality_emoji || null,
+        personality_description: parsed.personality_description || null,
+        summary: parsed.summary || 'Thank you for your feedback!',
+      });
+    } catch {
+      // Fallback if JSON parsing fails — return as plain summary
+      return res.json({ summary: raw || 'Thank you for your feedback!' });
+    }
   } catch (err) {
     console.error('Chat summary error:', err);
     return res.status(500).json({ error: 'Failed to generate summary' });

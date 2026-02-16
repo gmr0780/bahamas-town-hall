@@ -17,6 +17,7 @@ export default function ChatSurvey() {
   const [progress, setProgress] = useState(0);
   const [complete, setComplete] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  const [personality, setPersonality] = useState<{ title: string; emoji: string; description: string } | null>(null);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileReady, setTurnstileReady] = useState(false);
 
@@ -132,6 +133,13 @@ export default function ChatSurvey() {
           });
           const summaryData = await summaryRes.json();
           if (summaryData.summary) setSummary(summaryData.summary);
+          if (summaryData.personality_title) {
+            setPersonality({
+              title: summaryData.personality_title,
+              emoji: summaryData.personality_emoji || '',
+              description: summaryData.personality_description || '',
+            });
+          }
         } catch {
           // Summary is optional, don't block
         }
@@ -163,7 +171,9 @@ export default function ChatSurvey() {
   // Completion screen with summary + social sharing
   if (complete && messages.length > 0) {
     const shareUrl = 'https://bahamastech.ai';
-    const shareText = "I shared my voice at the Bahamas Technology Town Hall!";
+    const shareText = personality
+      ? `I'm ${personality.emoji} ${personality.title}! Take the Bahamas Tech Town Hall survey to find yours.`
+      : "I shared my voice at the Bahamas Technology Town Hall!";
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
@@ -180,6 +190,15 @@ export default function ChatSurvey() {
           <p className="text-gray-600 mb-4">
             Your feedback has been submitted successfully.
           </p>
+
+          {personality && (
+            <div className="bg-gradient-to-br from-bahamas-aqua/5 to-yellow-50 rounded-xl border-2 border-bahamas-aqua/30 p-6 mb-4">
+              <div className="text-5xl mb-3">{personality.emoji}</div>
+              <p className="text-xs uppercase tracking-wider text-bahamas-aqua font-semibold mb-1">Your Tech Personality</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">{personality.title}</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">{personality.description}</p>
+            </div>
+          )}
 
           {summary && (
             <div className="bg-white rounded-lg border border-gray-200 p-5 mb-4 text-left">

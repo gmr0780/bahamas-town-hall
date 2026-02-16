@@ -24,6 +24,7 @@ export default function Confirmation({ data, questions, onBack }: Props) {
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [personality, setPersonality] = useState<{ title: string; emoji: string; description: string } | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string>(undefined);
 
@@ -83,7 +84,16 @@ export default function Confirmation({ data, questions, onBack }: Props) {
         body: JSON.stringify({ citizen_id: result.id }),
       })
         .then((r) => r.json())
-        .then((d) => { if (d.summary) setAiSummary(d.summary); })
+        .then((d) => {
+          if (d.summary) setAiSummary(d.summary);
+          if (d.personality_title) {
+            setPersonality({
+              title: d.personality_title,
+              emoji: d.personality_emoji || '',
+              description: d.personality_description || '',
+            });
+          }
+        })
         .catch(() => {});
     } catch (err: any) {
       setError(err.message || 'Failed to submit. Please try again.');
@@ -111,7 +121,9 @@ export default function Confirmation({ data, questions, onBack }: Props) {
 
   if (submitted) {
     const shareUrl = 'https://bahamastech.ai';
-    const shareText = "I shared my voice at the Bahamas Technology Town Hall! Join me in shaping the future of technology in The Bahamas.";
+    const shareText = personality
+      ? `I'm ${personality.emoji} ${personality.title}! Take the Bahamas Tech Town Hall survey to find yours.`
+      : "I shared my voice at the Bahamas Technology Town Hall! Join me in shaping the future of technology in The Bahamas.";
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
@@ -129,6 +141,15 @@ export default function Confirmation({ data, questions, onBack }: Props) {
             Your feedback has been submitted successfully. Your voice matters in shaping
             the technology future of The Bahamas.
           </p>
+
+          {personality && (
+            <div className="bg-gradient-to-br from-bahamas-aqua/5 to-yellow-50 rounded-xl border-2 border-bahamas-aqua/30 p-6 mb-4">
+              <div className="text-5xl mb-3">{personality.emoji}</div>
+              <p className="text-xs uppercase tracking-wider text-bahamas-aqua font-semibold mb-1">Your Tech Personality</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">{personality.title}</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">{personality.description}</p>
+            </div>
+          )}
 
           {aiSummary && (
             <div className="bg-white rounded-lg border border-gray-200 p-5 mb-4 text-left">
