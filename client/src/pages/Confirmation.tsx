@@ -64,7 +64,7 @@ export default function Confirmation({ data, questions, onBack }: Props) {
         .map(([qid, value]) => ({ question_id: parseInt(qid), value }));
 
       const result = await api.submitSurvey({
-        name: data.name,
+        name: `${data.first_name} ${data.last_name}`,
         email: data.email,
         phone: data.phone || undefined,
         lives_in_bahamas: data.lives_in_bahamas,
@@ -207,7 +207,7 @@ export default function Confirmation({ data, questions, onBack }: Props) {
         <div className="bg-gray-50 rounded-lg p-4">
           <h3 className="font-medium text-gray-800 mb-2">Your Information</h3>
           <div className="text-sm text-gray-600 space-y-1">
-            <p><strong>Name:</strong> {data.name}</p>
+            <p><strong>Name:</strong> {data.first_name} {data.last_name}</p>
             <p><strong>Email:</strong> {data.email}</p>
             {data.phone && <p><strong>Phone:</strong> {data.phone}</p>}
             <p><strong>Resides in Bahamas:</strong> {data.lives_in_bahamas ? 'Yes' : 'No'}</p>

@@ -12,7 +12,7 @@ export default function Survey() {
   const [loading, setLoading] = useState(true);
   const [surveyOpen, setSurveyOpen] = useState<boolean | null>(null);
   const [data, setData] = useState<SurveyData>({
-    name: '', email: '', phone: '',
+    first_name: '', last_name: '', email: '', phone: '',
     lives_in_bahamas: true, island: '', country: '',
     age_group: '', sector: '',
     answers: {},

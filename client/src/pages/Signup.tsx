@@ -17,16 +17,29 @@ export default function Signup({ data, updateData, onNext }: Props) {
   return (
     <SurveyLayout step={1} title="Tell Us About Yourself" totalSteps={3}>
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 lg:space-y-6">
-        <div>
-          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Full Name *</label>
-          <input
-            type="text"
-            required
-            value={data.name}
-            onChange={(e) => updateData({ name: e.target.value })}
-            className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
-            placeholder="Enter your full name"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">First Name *</label>
+            <input
+              type="text"
+              required
+              value={data.first_name}
+              onChange={(e) => updateData({ first_name: e.target.value })}
+              className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+              placeholder="First name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Last Name *</label>
+            <input
+              type="text"
+              required
+              value={data.last_name}
+              onChange={(e) => updateData({ last_name: e.target.value })}
+              className="w-full px-3 sm:px-4 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-bahamas-aqua focus:border-transparent"
+              placeholder="Last name"
+            />
+          </div>
         </div>
         <div>
           <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2">Email Address *</label>

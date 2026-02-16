@@ -55,18 +55,23 @@ export default function Landing() {
             <p className="text-yellow-600 text-sm mt-1">Please check back later.</p>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
             <button
               onClick={() => navigate('/survey')}
-              className="bg-bahamas-aqua text-white px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl w-full sm:w-auto"
+              className="group bg-white rounded-xl border-2 border-gray-200 hover:border-bahamas-aqua p-5 text-left transition-all shadow-sm hover:shadow-lg w-full"
             >
-              Take the Survey
+              <div className="text-2xl mb-2">📋</div>
+              <h3 className="font-bold text-gray-900 mb-1">Traditional Survey</h3>
+              <p className="text-xs text-gray-500">Fill out a step-by-step form at your own pace</p>
             </button>
             <button
               onClick={() => navigate('/survey/chat')}
-              className="bg-white text-bahamas-aqua border-2 border-bahamas-aqua px-8 py-4 sm:py-3 rounded-lg text-lg font-semibold hover:bg-bahamas-aqua hover:text-white transition-colors shadow-lg hover:shadow-xl w-full sm:w-auto"
+              className="group bg-white rounded-xl border-2 border-bahamas-aqua p-5 text-left transition-all shadow-sm hover:shadow-lg w-full relative overflow-hidden"
             >
-              Chat with Bahamas AI
+              <div className="absolute top-2 right-2 bg-bahamas-aqua text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">New</div>
+              <div className="text-2xl mb-2">💬</div>
+              <h3 className="font-bold text-gray-900 mb-1">Chat with Bahamas AI</h3>
+              <p className="text-xs text-gray-500">Have a friendly conversation — the AI guides you through it</p>
             </button>
           </div>
         )}
