@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
+import { usePageTracker } from './hooks/usePageTracker';
 import Landing from './pages/Landing';
 import Survey from './pages/Survey';
 import ChatSurvey from './pages/ChatSurvey';
@@ -15,10 +16,16 @@ import AIInsights from './pages/admin/AIInsights';
 import Export from './pages/admin/Export';
 import AdminSettings from './pages/admin/AdminSettings';
 
+function PageTracker() {
+  usePageTracker();
+  return null;
+}
+
 function App() {
   return (
     <ErrorBoundary>
     <BrowserRouter>
+      <PageTracker />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/survey" element={<Survey />} />

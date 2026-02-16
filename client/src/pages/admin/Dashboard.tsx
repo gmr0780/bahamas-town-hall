@@ -9,8 +9,16 @@ interface Stats {
   by_sector: { sector: string; count: string }[];
 }
 
+interface PageViewStats {
+  total_views: number;
+  today_views: number;
+  by_page: { path: string; count: string }[];
+  by_day: { date: string; count: string }[];
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [pageViews, setPageViews] = useState<PageViewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [surveyOpen, setSurveyOpen] = useState<boolean | null>(null);
   const [toggling, setToggling] = useState(false);
@@ -22,7 +30,10 @@ export default function Dashboard() {
     const params: Record<string, string> = {};
     if (from) params.date_from = from;
     if (to) params.date_to = to;
-    api.getStats(params).then(setStats).finally(() => setLoading(false));
+    Promise.all([
+      api.getStats(params).then(setStats),
+      api.getPageViews(params).then(setPageViews),
+    ]).finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -110,10 +121,31 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Responses" value={stats.total_responses} />
-        <StatCard label="Today" value={stats.today_responses} />
+        <StatCard label="Responses Today" value={stats.today_responses} />
+        <StatCard label="Total Page Views" value={pageViews?.total_views ?? '-'} />
+        <StatCard label="Views Today" value={pageViews?.today_views ?? '-'} />
       </div>
+
+      {pageViews && pageViews.by_page.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <BreakdownCard
+            title="Views by Page"
+            data={pageViews.by_page.map(r => ({
+              label: r.path === '/' ? 'Home' : r.path,
+              count: parseInt(r.count),
+            }))}
+          />
+          <BreakdownCard
+            title="Views by Day (Last 30 Days)"
+            data={pageViews.by_day.map(r => ({
+              label: new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+              count: parseInt(r.count),
+            }))}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <BreakdownCard title="By Island" data={stats.by_island.map(r => ({ label: r.island, count: parseInt(r.count) }))} />

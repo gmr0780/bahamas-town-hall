@@ -101,6 +101,12 @@ export const api = {
   deleteAdmin: (id: number) =>
     request<{ success: boolean }>(`/api/admin/admins/${id}`, { method: 'DELETE' }),
 
+  // Page views
+  getPageViews: (params?: Record<string, string>) => {
+    const qs = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return request<any>(`/api/admin/page-views${qs}`);
+  },
+
   // Export
   exportCsv: (params: Record<string, string>) => {
     const qs = new URLSearchParams(params).toString();

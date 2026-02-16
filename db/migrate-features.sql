@@ -19,3 +19,15 @@ CREATE TABLE IF NOT EXISTS admins (
 );
 
 CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email);
+
+-- Page view tracking
+CREATE TABLE IF NOT EXISTS page_views (
+  id SERIAL PRIMARY KEY,
+  path VARCHAR(255) NOT NULL,
+  referrer TEXT,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_views_created_at ON page_views(created_at);
+CREATE INDEX IF NOT EXISTS idx_page_views_path ON page_views(path);
