@@ -16,11 +16,17 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-br from-bahamas-aqua-light to-white flex items-center justify-center px-4 py-8">
       <div className="max-w-xl w-full text-center">
         <div className="mb-4 sm:mb-6">
-          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl mb-3 sm:mb-4 relative overflow-hidden">
-            <div className="absolute inset-0 bg-bahamas-aqua" />
-            <div className="absolute left-0 top-0 bottom-0 w-7 sm:w-8 bg-bahamas-black"
-              style={{ clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }} />
-            <span className="relative text-white text-2xl sm:text-3xl font-bold z-10">BS</span>
+          <div className="inline-block rounded-2xl overflow-hidden shadow-lg mb-3 sm:mb-4">
+            <svg width="120" height="80" viewBox="0 0 300 200" className="w-24 h-16 sm:w-32 sm:h-20">
+              {/* Aquamarine top band */}
+              <rect width="300" height="66.67" fill="#00B4D8" />
+              {/* Gold middle band */}
+              <rect y="66.67" width="300" height="66.67" fill="#FFD700" />
+              {/* Aquamarine bottom band */}
+              <rect y="133.33" width="300" height="66.67" fill="#00B4D8" />
+              {/* Black triangle on hoist side */}
+              <polygon points="0,0 120,100 0,200" fill="#1A1A2E" />
+            </svg>
           </div>
         </div>
         <h1 className="text-2xl sm:text-4xl font-bold text-bahamas-black mb-2">
