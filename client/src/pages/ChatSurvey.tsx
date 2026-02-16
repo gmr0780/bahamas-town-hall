@@ -174,7 +174,13 @@ export default function ChatSurvey() {
     const shareText = personality
       ? `I'm ${personality.emoji} ${personality.title}! Take the Bahamas Tech Town Hall survey to find yours.`
       : "I shared my voice at the Bahamas Technology Town Hall!";
-    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+    const linkedInTitle = personality
+      ? `I'm ${personality.emoji} ${personality.title}!`
+      : 'Bahamas Technology Town Hall';
+    const linkedInSummary = personality
+      ? `${personality.description} Take the survey to discover your tech personality!`
+      : 'Share your voice and help shape the technology future of The Bahamas.';
+    const linkedInUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(linkedInTitle)}&summary=${encodeURIComponent(linkedInSummary)}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
 
