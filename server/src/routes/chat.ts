@@ -651,7 +651,12 @@ ${commonThemes || 'Not enough data yet.'}`,
     const raw = textContent?.text || '';
 
     try {
-      const parsed = JSON.parse(raw);
+      // Strip markdown code fences if Claude wrapped the JSON
+      let jsonStr = raw.trim();
+      if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+      }
+      const parsed = JSON.parse(jsonStr);
       return res.json({
         personality_title: parsed.personality_title || null,
         personality_emoji: parsed.personality_emoji || null,
