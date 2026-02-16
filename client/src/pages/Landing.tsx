@@ -55,23 +55,26 @@ export default function Landing() {
             <p className="text-yellow-600 text-sm mt-1">Please check back later.</p>
           </div>
         ) : (
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Choose your experience</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
             <button
               onClick={() => navigate('/survey')}
-              className="group bg-white rounded-xl border-2 border-gray-200 hover:border-bahamas-aqua p-5 text-left transition-all shadow-sm hover:shadow-lg w-full"
+              className="group bg-white rounded-xl border-2 border-gray-200 hover:border-gray-400 p-5 text-left transition-all shadow-sm hover:shadow-lg w-full"
             >
               <div className="text-2xl mb-2">📋</div>
-              <h3 className="font-bold text-gray-900 mb-1">Traditional Survey</h3>
-              <p className="text-xs text-gray-500">Fill out a step-by-step form at your own pace</p>
+              <h3 className="font-bold text-gray-900 mb-1">Classic Form</h3>
+              <p className="text-xs text-gray-500 mb-2">A simple step-by-step questionnaire. Pick your answers and submit at your own pace.</p>
+              <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">~5 minutes</span>
             </button>
             <button
               onClick={() => navigate('/survey/chat')}
-              className="group bg-white rounded-xl border-2 border-bahamas-aqua p-5 text-left transition-all shadow-sm hover:shadow-lg w-full relative overflow-hidden"
+              className="group bg-gradient-to-br from-white to-bahamas-aqua/5 rounded-xl border-2 border-bahamas-aqua p-5 text-left transition-all shadow-sm hover:shadow-lg w-full relative overflow-hidden"
             >
-              <div className="absolute top-2 right-2 bg-bahamas-aqua text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">New</div>
-              <div className="text-2xl mb-2">💬</div>
+              <div className="absolute top-2 right-2 bg-bahamas-aqua text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">AI-Powered</div>
+              <div className="text-2xl mb-2">🤖</div>
               <h3 className="font-bold text-gray-900 mb-1">Chat with Bahamas AI</h3>
-              <p className="text-xs text-gray-500">Have a friendly conversation — the AI guides you through it</p>
+              <p className="text-xs text-gray-500 mb-2">Talk naturally with our AI — type or use your voice. Get a personalized tech personality at the end!</p>
+              <span className="text-[10px] text-bahamas-aqua font-medium uppercase tracking-wide">~5 minutes &middot; voice enabled</span>
             </button>
           </div>
         )}
