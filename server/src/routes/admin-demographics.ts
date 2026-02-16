@@ -74,7 +74,10 @@ router.get('/api/admin/demographics', adminAuth, async (req: Request, res: Respo
       } else if (q.type === 'checkbox') {
         const result = await pool.query(
           `SELECT item, COUNT(*) as count
-           FROM responses r JOIN citizens c ON c.id = r.citizen_id, jsonb_array_elements_text(r.value::jsonb) AS item
+           FROM responses r JOIN citizens c ON c.id = r.citizen_id,
+           jsonb_array_elements_text(
+             CASE WHEN r.value ~ '^\\[' THEN r.value::jsonb ELSE jsonb_build_array(r.value) END
+           ) AS item
            WHERE r.question_id = $1 ${responseWhere}
            GROUP BY item ORDER BY count DESC`,
           [q.id, ...dateParams]

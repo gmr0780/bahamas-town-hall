@@ -41,7 +41,10 @@ router.get('/api/results', async (_req: Request, res: Response) => {
       } else if (q.type === 'checkbox') {
         const result = await pool.query(
           `SELECT item, COUNT(*) as count
-           FROM responses, jsonb_array_elements_text(value::jsonb) AS item
+           FROM responses,
+           jsonb_array_elements_text(
+             CASE WHEN value ~ '^\\[' THEN value::jsonb ELSE jsonb_build_array(value) END
+           ) AS item
            WHERE question_id = $1
            GROUP BY item ORDER BY count DESC`,
           [q.id]
