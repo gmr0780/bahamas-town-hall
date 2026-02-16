@@ -27,7 +27,7 @@ const SECTORS = [
 ];
 
 const DEMOGRAPHIC_FIELDS = [
-  'name', 'email', 'phone', 'lives_in_bahamas', 'island', 'country', 'age_group', 'sector',
+  'first_name', 'last_name', 'email', 'phone', 'lives_in_bahamas', 'island', 'country', 'age_group', 'sector',
 ] as const;
 
 type DemographicKey = typeof DEMOGRAPHIC_FIELDS[number];
@@ -35,7 +35,8 @@ type DemographicKey = typeof DEMOGRAPHIC_FIELDS[number];
 // --- Session store ---
 
 interface Demographics {
-  name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   phone?: string;
   lives_in_bahamas?: boolean;
@@ -79,7 +80,8 @@ const surveyUpdateTool: Anthropic.Tool = {
         type: 'object',
         description: 'Any demographic fields extracted from the user message',
         properties: {
-          name: { type: 'string' },
+          first_name: { type: 'string' },
+          last_name: { type: 'string' },
           email: { type: 'string' },
           phone: { type: 'string' },
           lives_in_bahamas: { type: 'boolean' },
@@ -119,7 +121,8 @@ const surveyUpdateTool: Anthropic.Tool = {
 
 function countDemographicsCollected(demographics: Demographics): number {
   let count = 0;
-  if (demographics.name) count++;
+  if (demographics.first_name) count++;
+  if (demographics.last_name) count++;
   if (demographics.email) count++;
   if (demographics.phone !== undefined) count++;
   if (demographics.lives_in_bahamas !== undefined) count++;
@@ -137,7 +140,8 @@ function countDemographicsCollected(demographics: Demographics): number {
 
 function getMissingDemographics(demographics: Demographics): string[] {
   const missing: string[] = [];
-  if (!demographics.name) missing.push('name');
+  if (!demographics.first_name) missing.push('first_name');
+  if (!demographics.last_name) missing.push('last_name');
   if (!demographics.email) missing.push('email');
   // phone is optional, but we still ask
   if (demographics.phone === undefined) missing.push('phone (optional)');
@@ -152,7 +156,7 @@ function getMissingDemographics(demographics: Demographics): string[] {
 }
 
 function areDemographicsComplete(demographics: Demographics): boolean {
-  if (!demographics.name || !demographics.email) return false;
+  if (!demographics.first_name || !demographics.last_name || !demographics.email) return false;
   if (demographics.lives_in_bahamas === undefined) return false;
   if (!demographics.island) return false;
   if (demographics.lives_in_bahamas === false && !demographics.country) return false;
@@ -162,7 +166,7 @@ function areDemographicsComplete(demographics: Demographics): boolean {
 }
 
 function calculateProgress(session: Session): number {
-  const totalDemographics = 8;
+  const totalDemographics = 9;
   const totalQuestions = session.questions.length;
   const total = totalDemographics + totalQuestions;
   if (total === 0) return 0;
@@ -212,7 +216,7 @@ CURRENT STATE:
 
 RULES:
 1. Ask ONE thing at a time. Never overwhelm.
-2. For demographics, collect in this order: name, email (optional: phone), do they live in Bahamas (yes/no), if yes ask island, if no ask country then island, age group, sector.
+2. For demographics, collect in this order: first name, then last name (ask both — e.g. "What's your first name?" then "And your last name?"), email (optional: phone), do they live in Bahamas (yes/no), if yes ask island, if no ask country then island, age group, sector.
 3. For survey questions, present them naturally. For choice questions (dropdown/checkbox/scale), mention the options and set quick_replies so the user can tap.
 4. For checkbox questions, the user can pick multiple. List them and let them choose.
 5. For scale questions (1-5 etc), show the scale labels and set quick_replies to the numbers.
@@ -494,7 +498,7 @@ async function submitSurvey(session: Session): Promise<number> {
       `INSERT INTO citizens (name, email, phone, lives_in_bahamas, island, country, age_group, sector)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
       [
-        demographics.name,
+        `${demographics.first_name} ${demographics.last_name}`,
         demographics.email,
         demographics.phone && demographics.phone !== 'declined' ? demographics.phone : null,
         demographics.lives_in_bahamas ?? true,
@@ -521,7 +525,7 @@ async function submitSurvey(session: Session): Promise<number> {
 
     // Fire-and-forget thank-you email
     if (demographics.email) {
-      sendThankYouEmail(demographics.email, demographics.name || 'Friend').catch(() => {});
+      sendThankYouEmail(demographics.email, demographics.first_name || 'Friend').catch(() => {});
     }
 
     return citizenId;
