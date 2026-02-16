@@ -55,6 +55,7 @@ export default function Landing() {
             <p className="text-yellow-600 text-sm mt-1">Please check back later.</p>
           </div>
         ) : (
+          <>
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Choose your experience</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
             <button
@@ -77,6 +78,7 @@ export default function Landing() {
               <span className="text-[10px] text-bahamas-aqua font-medium uppercase tracking-wide">~5 minutes &middot; voice enabled</span>
             </button>
           </div>
+          </>
         )}
         <div className="mt-4 flex justify-center gap-4">
           <button
