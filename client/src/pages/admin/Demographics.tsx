@@ -24,19 +24,16 @@ export default function Demographics() {
       {/* Citizen demographics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <ChartCard title="By Island">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data.by_island.map((r: any) => ({ name: r.island, value: parseInt(r.count) }))}
-                cx="50%" cy="50%" outerRadius={100}
-                dataKey="value" label={({ name, value }: any) => `${name}: ${value}`}
-              >
-                {data.by_island.map((_: any, i: number) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
+          <ResponsiveContainer width="100%" height={Math.max(250, data.by_island.length * 35)}>
+            <BarChart
+              data={data.by_island.map((r: any) => ({ name: r.island, count: parseInt(r.count) }))}
+              layout="vertical"
+            >
+              <XAxis type="number" />
+              <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
               <Tooltip />
-            </PieChart>
+              <Bar dataKey="count" fill="#00778B" radius={[0, 4, 4, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
