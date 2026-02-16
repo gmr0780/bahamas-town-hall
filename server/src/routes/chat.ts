@@ -439,9 +439,10 @@ router.post('/api/chat/message', async (req: Request, res: Response) => {
     }
 
     // Check if survey is complete (always check, even during follow-ups)
-    if (session.phase === 'survey') {
+    if (session.phase === 'survey' && areDemographicsComplete(session.demographics)) {
       const allAnswered = session.questions.every((q) => session.answers[q.id] !== undefined);
-      if (allAnswered && areDemographicsComplete(session.demographics)) {
+      const wentThroughAll = session.currentQuestionIndex >= session.questions.length;
+      if (allAnswered || wentThroughAll) {
         // All done! Submit to DB
         try {
           const citizenId = await submitSurvey(session);
