@@ -59,6 +59,14 @@ export default function Results() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-bahamas-aqua-light to-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/')}
+            className="text-bahamas-aqua hover:opacity-80 text-sm font-medium"
+          >
+            &larr; Back to Home
+          </button>
+        </div>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-bahamas-aqua rounded-xl mb-3">
             <span className="text-white font-bold text-lg">BS</span>
