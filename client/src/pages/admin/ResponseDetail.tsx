@@ -61,7 +61,16 @@ export default function ResponseDetail() {
         </button>
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">{citizen.name}</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">{citizen.name}</h1>
+        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+          citizen.survey_mode === 'chat'
+            ? 'bg-bahamas-aqua/10 text-bahamas-aqua'
+            : 'bg-gray-100 text-gray-600'
+        }`}>
+          {citizen.survey_mode === 'chat' ? 'AI Chat' : 'Classic Form'}
+        </span>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Section title="Personal Information">
