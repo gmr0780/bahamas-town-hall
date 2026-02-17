@@ -97,6 +97,7 @@ export default function ResponseBrowser() {
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Island</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Age</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Sector</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-600">Mode</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
                 </tr>
               </thead>
@@ -111,6 +112,15 @@ export default function ResponseBrowser() {
                     <td className="px-4 py-3 text-gray-600">{row.island}</td>
                     <td className="px-4 py-3 text-gray-600">{row.age_group}</td>
                     <td className="px-4 py-3 text-gray-600">{row.sector}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+                        row.survey_mode === 'chat'
+                          ? 'bg-bahamas-aqua/10 text-bahamas-aqua'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {row.survey_mode === 'chat' ? 'AI Chat' : 'Classic'}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-gray-600">
                       {new Date(row.created_at).toLocaleDateString()}
                     </td>

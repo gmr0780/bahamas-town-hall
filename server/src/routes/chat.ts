@@ -500,8 +500,8 @@ async function submitSurvey(session: Session): Promise<number> {
 
     // Insert citizen
     const citizenResult = await client.query(
-      `INSERT INTO citizens (name, email, phone, lives_in_bahamas, island, country, age_group, sector)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+      `INSERT INTO citizens (name, email, phone, lives_in_bahamas, island, country, age_group, sector, survey_mode)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
       [
         `${demographics.first_name} ${demographics.last_name}`,
         demographics.email,
@@ -511,6 +511,7 @@ async function submitSurvey(session: Session): Promise<number> {
         demographics.country || null,
         demographics.age_group,
         demographics.sector,
+        'chat',
       ]
     );
     const citizenId = citizenResult.rows[0].id;

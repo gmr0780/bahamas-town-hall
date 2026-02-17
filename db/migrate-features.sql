@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS admins (
 
 CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email);
 
+-- Survey mode tracking
+ALTER TABLE citizens ADD COLUMN IF NOT EXISTS survey_mode VARCHAR(10) DEFAULT 'standard';
+
 -- Page view tracking
 CREATE TABLE IF NOT EXISTS page_views (
   id SERIAL PRIMARY KEY,

@@ -7,6 +7,7 @@ interface Stats {
   by_island: { island: string; count: string }[];
   by_age_group: { age_group: string; count: string }[];
   by_sector: { sector: string; count: string }[];
+  by_mode: { mode: string; count: string }[];
 }
 
 interface PageViewStats {
@@ -124,6 +125,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Responses" value={stats.total_responses} />
         <StatCard label="Responses Today" value={stats.today_responses} />
+        <StatCard
+          label="Classic Form"
+          value={parseInt(stats.by_mode?.find(m => m.mode === 'standard')?.count ?? '0')}
+        />
+        <StatCard
+          label="AI Chat"
+          value={parseInt(stats.by_mode?.find(m => m.mode === 'chat')?.count ?? '0')}
+        />
         <StatCard label="Total Page Views" value={pageViews?.total_views ?? '-'} />
         <StatCard label="Views Today" value={pageViews?.today_views ?? '-'} />
       </div>

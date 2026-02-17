@@ -67,9 +67,9 @@ router.post('/api/citizens', async (req: Request, res: Response) => {
 
     // Insert citizen
     const citizenResult = await client.query(
-      `INSERT INTO citizens (name, email, phone, lives_in_bahamas, island, country, age_group, sector)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
-      [body.name, body.email, body.phone || null, body.lives_in_bahamas ?? true, body.island, body.country || null, body.age_group, body.sector]
+      `INSERT INTO citizens (name, email, phone, lives_in_bahamas, island, country, age_group, sector, survey_mode)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      [body.name, body.email, body.phone || null, body.lives_in_bahamas ?? true, body.island, body.country || null, body.age_group, body.sector, 'standard']
     );
     const citizenId = citizenResult.rows[0].id;
 
